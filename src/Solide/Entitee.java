@@ -1,3 +1,4 @@
+package Solide;
 public abstract class Entitee extends Objet {
 
     private int max_hp;

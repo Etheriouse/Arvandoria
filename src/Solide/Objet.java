@@ -1,3 +1,4 @@
+package Solide;
 public abstract class Objet {
 
     public int id;

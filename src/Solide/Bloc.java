@@ -1,8 +1,15 @@
+package Solide;
+
+
 public class Bloc extends Objet {
 
     private String texture_path;
 
     public Bloc() {
+        super();
+        this.texture_path = "none";
+    }
+    public Bloc(int i) {
         super();
         this.texture_path = "none";
     }
