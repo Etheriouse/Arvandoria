@@ -1,6 +1,6 @@
 package Solide;
 
-public class Obstacle extends Bloc {
+public class Obstacle extends Objet {
 
     public Obstacle() {
         super();

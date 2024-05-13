@@ -10,7 +10,7 @@ public class Bloc extends Objet {
         this.texture_path = "none";
     }
     public Bloc(int i) {
-        super();
+        super(i);
         this.texture_path = "none";
     }
 

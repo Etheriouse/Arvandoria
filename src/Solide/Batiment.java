@@ -1,6 +1,6 @@
 package Solide;
 
-public class Batiment extends Bloc {
+public class Batiment extends Objet {
 
     public Batiment() {
         super();
