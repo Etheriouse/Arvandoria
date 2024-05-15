@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+
 public class Monde {
 
     private Entitee[][] entitee;
@@ -34,15 +35,11 @@ public class Monde {
         this.entitee = new Entitee[y][x];
     }
 
-    public Monde(String filepathFloor, String filepathObjet, String filepathEntitee) {
+    public Monde(String filepathMap) {
         try {
-            File floorFile = new File(filepathFloor);
-            File objetFile = new File(filepathObjet);
-            File entiteeFile = new File(filepathEntitee);
+            File floorFile = new File(filepathMap);
 
             BufferedImage floorImage = ImageIO.read(floorFile);
-            BufferedImage objetImage = ImageIO.read(floorFile);
-            BufferedImage entiteeImage = ImageIO.read(floorFile);
 
             int width = floorImage.getWidth();
             int height = floorImage.getHeight();
@@ -59,32 +56,27 @@ public class Monde {
                     int green = (pixel >> 8) & 0xFF;
                     int blue = pixel & 0xFF;
 
-                    this.floor[y][x] = new Bloc(red + green + blue);
-
-
-                    pixel = objetImage.getRGB(x, y);
-
-                    red = (pixel >> 16) & 0xFF;
-                    green = (pixel >> 8) & 0xFF;
-                    blue = pixel & 0xFF;
-
-                    //this.objet[y][x] = new Objet(red + green + blue);
-                    //TODO
-
-                    pixel = entiteeImage.getRGB(x, y);
-
-                    red = (pixel >> 16) & 0xFF;
-                    green = (pixel >> 8) & 0xFF;
-                    blue = pixel & 0xFF;
-
-                    //this.entitee[y][x] = new Entitee(red + green + blue);
-                    //TODO
+                    this.floor[y][x] = new Bloc(red);
+                    //TODO gerer sa this.objet[x][y] = new Objet(green);
+                    //TODO gerer sa this.entitee[x][y] = new Entitee(blue);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+    }
+
+    public Monde(int x, int y, double type) {
+        this.floor = new Bloc[y][x];
+        this.objet = new Objet[y][x];
+        this.entitee = new Entitee[y][x];
+        int[][] perlinMap = PerlinNoise.generateProcedural(x, y, type);
+        for(int height = 0; height<y; height++) {
+            for(int width = 0; width<x; width++) {
+                this.floor[height][width] = new Bloc(perlinMap[height][width]);
+            }
+        }
     }
 
     public void show(boolean number, int layer) {
@@ -118,7 +110,7 @@ public class Monde {
                                 break;
                             case 0:
                                 // herbe
-                                System.out.print("* ");
+                                System.out.print("~ ");
                                 break;
                             case 1:
                                 // rocher

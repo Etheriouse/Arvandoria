@@ -53,6 +53,7 @@ public class Jeu extends JFrame {
     private Image forge = getImage("assets/forge.png");
     private Image habitation = getImage("assets/habitation.png");
     private Image ferme = getImage("assets/ferme.png");
+    private Image eau = getImage("assets/tilemap/water/frame1sprite/frame1_water_34.png");
     private Image error = getImage("assets/error.png");
     private Image none = getImage("assets/none.png");
 
@@ -60,8 +61,8 @@ public class Jeu extends JFrame {
     private static Hashtable<Integer, String> nomsTouches = new Hashtable<Integer, String>();
 
     public Jeu() {
-        this.X = 200;
-        this.Y = 200;
+        this.X = 50;
+        this.Y = 50;
     }
 
     private void setup() {
@@ -116,7 +117,7 @@ public class Jeu extends JFrame {
     }
 
     public void run() {
-        Monde carte = new Monde(this.X, this.Y);
+        Monde carte = new Monde(this.X, this.Y, 0.8);
 
         posCameraX = (X * 50) / 2;
         posCameraY = (Y * 50) / 2;
@@ -126,28 +127,10 @@ public class Jeu extends JFrame {
         Batiment ferme = new Ferme(5);
         Batiment caserne = new Caserne(6);
         Obstacle rocher = new Obstacle(1);
-        Bloc herbe = new Bloc(0);
+        Bloc eau = new Bloc(0);
+        Bloc herbe = new Bloc(1);
         Obstacle mur = new Obstacle(2);
-        for (int i = 0; i < Y; i++) {
-            for (int y = 0; y < X; y++) {
-                carte.setCaseFloor(herbe, y, i);
-            }
-        }
-        carte.setCaseObjet(rocher, 5, 1);
-        carte.setCaseObjet(ville, 5, 2);
-        carte.setCaseObjet(mur, 5, 3);
-        carte.setCaseObjet(ferme, 5, 4);
-        carte.setCaseObjet(forge, 5, 5);
-        carte.setCaseObjet(caserne, 5, 6);
-        carte.setCaseFloor(herbe, 5, 7);
 
-        carte.setCaseObjet(ville, X - 2, 1);
-        carte.setCaseObjet(ville, X - 3, 2);
-        carte.setCaseObjet(ville, 1, 1);
-        carte.setCaseObjet(ville, 2, 2);
-
-        carte.setCaseObjet(ville, 2, Y - 3);
-        carte.setCaseObjet(ville, 1, Y - 2);
         // carte.show(true);
         setup();
 
@@ -329,11 +312,11 @@ public class Jeu extends JFrame {
                             break;
                         case 0:
                             // herbe
-                            offscreen.drawImage(herbe, i, y, textureSize, textureSize, null);
+                            offscreen.drawImage(eau, i, y, textureSize, textureSize, null);
                             break;
                         case 1:
                             // rocher
-                            offscreen.drawImage(rocher, i, y, textureSize, textureSize, null);
+                            offscreen.drawImage(herbe, i, y, textureSize, textureSize, null);
                             break;
                         case 2:
                             // mur ou border
