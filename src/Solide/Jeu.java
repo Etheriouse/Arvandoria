@@ -9,6 +9,12 @@ import java.awt.Toolkit;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import Solide.Batiments.Batiment;
+import Solide.Batiments.Caserne;
+import Solide.Batiments.Ferme;
+import Solide.Batiments.Forge;
+import Solide.Batiments.Ville;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
@@ -115,10 +121,10 @@ public class Jeu extends JFrame {
         posCameraX = (X * 50) / 2;
         posCameraY = (Y * 50) / 2;
 
-        Batiment ville = new Batiment(3);
-        Batiment forge = new Batiment(4);
-        Batiment ferme = new Batiment(5);
-        Batiment habitation = new Batiment(6);
+        Batiment ville = new Ville(3);
+        Batiment forge = new Forge(4);
+        Batiment ferme = new Ferme(5);
+        Batiment caserne = new Caserne(6);
         Obstacle rocher = new Obstacle(1);
         Bloc herbe = new Bloc(0);
         Obstacle mur = new Obstacle(2);
@@ -132,7 +138,7 @@ public class Jeu extends JFrame {
         carte.setCaseObjet(mur, 5, 3);
         carte.setCaseObjet(ferme, 5, 4);
         carte.setCaseObjet(forge, 5, 5);
-        carte.setCaseObjet(habitation, 5, 6);
+        carte.setCaseObjet(caserne, 5, 6);
         carte.setCaseFloor(herbe, 5, 7);
 
         carte.setCaseObjet(ville, X - 2, 1);
@@ -145,7 +151,7 @@ public class Jeu extends JFrame {
         // carte.show(true);
         setup();
 
-        final double max_speed = 5.0f;
+        final double max_speed = 7.0f;
         final double acc = 1.0f;
         double playervelocityX = 0.0f;
         double playervelocityY = 0.0f;
@@ -269,7 +275,7 @@ public class Jeu extends JFrame {
             // System.out.println(playervelocity);
 
             try {
-                Thread.sleep(5);
+                Thread.sleep(0);
             } catch (InterruptedException e) {
 
             }

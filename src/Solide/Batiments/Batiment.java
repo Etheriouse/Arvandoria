@@ -1,6 +1,8 @@
-package Solide;
+package Solide.Batiments;
 
-public class Batiment extends Objet {
+import Solide.Objet;
+
+public abstract class Batiment extends Objet {
 
     public Batiment() {
         super();
