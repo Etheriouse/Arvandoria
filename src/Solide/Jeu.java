@@ -53,9 +53,10 @@ public class Jeu extends JFrame {
     private Image forge = getImage("assets/forge.png");
     private Image habitation = getImage("assets/habitation.png");
     private Image ferme = getImage("assets/ferme.png");
-    private Image eau = getImage("assets/tilemap/water/frame1sprite/frame1_water_34.png");
     private Image error = getImage("assets/error.png");
     private Image none = getImage("assets/none.png");
+
+    private Image eau = getImage("assets/tilemap/water/frame1sprite/frame1_water_34.png");
 
     private static TreeSet<Integer> keysDown;
     private static Hashtable<Integer, String> nomsTouches = new Hashtable<Integer, String>();
@@ -117,19 +118,19 @@ public class Jeu extends JFrame {
     }
 
     public void run() {
-        Monde carte = new Monde(this.X, this.Y, 0.8);
+        Monde carte = new Monde(this.X, this.Y, 0.4);
 
         posCameraX = (X * 50) / 2;
         posCameraY = (Y * 50) / 2;
 
-        Batiment ville = new Ville(3);
-        Batiment forge = new Forge(4);
-        Batiment ferme = new Ferme(5);
-        Batiment caserne = new Caserne(6);
-        Obstacle rocher = new Obstacle(1);
-        Bloc eau = new Bloc(0);
-        Bloc herbe = new Bloc(1);
-        Obstacle mur = new Obstacle(2);
+        // Batiment ville = new Ville(3);
+        // Batiment forge = new Forge(4);
+        // Batiment ferme = new Ferme(5);
+        // Batiment caserne = new Caserne(6);
+        // Obstacle rocher = new Obstacle(1);
+        // Bloc eau = new Bloc(0);
+        // Bloc herbe = new Bloc(1);
+        // Obstacle mur = new Obstacle(2);
 
         // carte.show(true);
         setup();
@@ -307,38 +308,16 @@ public class Jeu extends JFrame {
                 if (carte.getFloor()[b / 50][n / 50] != null) {
                     switch (carte.getFloor()[b / 50][n / 50].id) {
                         case -1:
-                            // System.out.println("bah?");
                             offscreen.drawImage(none, i, y, textureSize, textureSize, null);
                             break;
                         case 0:
-                            // herbe
+                            // eau
+                            //offscreen.drawImage(Settings.getImageFromNumber(Settings.getGoodSpriteByPlacement(0, Settings.getThreeArray2D(n, b, carte))), i, y, textureSize, textureSize, null);
                             offscreen.drawImage(eau, i, y, textureSize, textureSize, null);
                             break;
                         case 1:
-                            // rocher
                             offscreen.drawImage(herbe, i, y, textureSize, textureSize, null);
                             break;
-                        case 2:
-                            // mur ou border
-                            offscreen.drawImage(mur, i, y, textureSize, textureSize, null);
-                            break;
-                        case 3:
-                            // ville
-                            offscreen.drawImage(ville, i, y, textureSize, textureSize, null);
-                            break;
-                        case 4:
-                            // batiment utilitaire
-                            offscreen.drawImage(forge, i, y, textureSize, textureSize, null);
-                            break;
-                        case 5:
-                            // batiment utilitaire
-                            offscreen.drawImage(ferme, i, y, textureSize, textureSize, null);
-                            break;
-                        case 6:
-                            // batiment utilitaire
-                            offscreen.drawImage(habitation, i, y, textureSize, textureSize, null);
-                            break;
-
                         default:
                             offscreen.drawImage(error, i, y, textureSize, textureSize, null);
                             break;
@@ -479,7 +458,7 @@ public class Jeu extends JFrame {
      * @param filename un chemin de texture
      * @return une image correspondant au chemin de texture
      */
-    private static Image getImage(String filename) {
+    public static Image getImage(String filename) {
         return new ImageIcon(filename).getImage();
     }
 
