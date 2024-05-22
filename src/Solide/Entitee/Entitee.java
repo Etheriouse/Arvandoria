@@ -1,8 +1,14 @@
-package Solide;
+package Solide.Entitee;
+
+import Solide.Objet;
+
 public abstract class Entitee extends Objet {
 
-    private int max_hp;
-    private int hp;
+    protected int max_hp;
+    protected int hp;
+    protected int x;
+    protected int y;
+
 
     public Entitee() {
         super();
@@ -17,6 +23,14 @@ public abstract class Entitee extends Objet {
 
     public Entitee(int maxhp, int id) {
         super(id);
+        this.max_hp = maxhp;
+        this.hp = maxhp;
+    }
+
+    public Entitee(int maxhp, int id, int x, int y) {
+        super(id);
+        this.x = x;
+        this.y = y;
         this.max_hp = maxhp;
         this.hp = maxhp;
     }
@@ -36,6 +50,22 @@ public abstract class Entitee extends Objet {
 
     public void setHp(int hp) {
         this.hp = hp;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
     }
 
 }

@@ -8,6 +8,8 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
+import Solide.Entitee.Entitee;
+
 
 public class Monde implements Graph {
 
@@ -231,7 +233,9 @@ public class Monde implements Graph {
 
                 if(b < toRenderer.length && a < toRenderer[b].length) {
                     if (toRenderer[b][a] != null) {
-                        offscreen.drawImage(Settings.Textures.get("Herbe"), x, y, Ts, Ts, null);
+                        if(TypeFlat.Floor == type) {
+                            offscreen.drawImage(Settings.Textures.get("Herbe"), x, y, Ts, Ts, null);
+                        }
                         switch (toRenderer[b][a].id) {
                             case -1:
                                 offscreen.drawImage(Settings.Textures.get("None"), x, y, Ts, Ts, null);
@@ -250,6 +254,9 @@ public class Monde implements Graph {
                                 break;
                             case 4:
                                 offscreen.drawImage(Settings.Textures.get("Montagne"), x, y, Ts, Ts, null);
+                                break;
+                            case 7:
+                                offscreen.drawImage(Settings.Textures.get("Joueur"), x, y, Ts, Ts, null);
                                 break;
                             default:
                                 offscreen.drawImage(Settings.Textures.get("Error"), x, y, Ts, Ts, null);

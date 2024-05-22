@@ -7,6 +7,8 @@ import java.awt.Image;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import Solide.Entitee.Joueur;
+
 import java.awt.Toolkit;
 import java.awt.Point;
 import java.awt.Cursor;
@@ -14,6 +16,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
@@ -36,13 +39,10 @@ public class Jeu extends JFrame {
 
     private TreeMap<String, Long> cooldown = new TreeMap<>();
 
-    private int textureSize = 50;
+    private int Ts = 50;
 
-    private int posCameraX = X*textureSize/2;
-    private int posCameraY = Y*textureSize/2;
-
-    //private int rotation = 0;
-    //private float zoom = 1.0f;
+    private int posCameraX;
+    private int posCameraY;
 
     private int MarginTop = 0;
 
@@ -64,6 +64,8 @@ public class Jeu extends JFrame {
     }
 
     private void setup() {
+        posCameraX = X*Ts/2;
+        posCameraY = Y*Ts/2;
         Settings.setup();
         this.setTitle("game");
         this.setResizable(false);
@@ -94,6 +96,7 @@ public class Jeu extends JFrame {
         nomsTouches.put(KeyEvent.VK_M, "M");
         nomsTouches.put(KeyEvent.VK_S, "S");
         nomsTouches.put(KeyEvent.VK_K, "K");
+        MarginTop = this.getInsets().top;
 
         this.addKeyListener(new KeyListener() {
             @Override
@@ -111,14 +114,26 @@ public class Jeu extends JFrame {
             }
         });
 
-        MarginTop = this.getInsets().top;
+        this.addMouseMotionListener(new MouseMotionListener() {
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                // TODO Auto-generated method stub
+                //throw new UnsupportedOperationException("Unimplemented method 'mouseDragged'");
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                mouseX = e.getX();
+                mouseY = e.getY()-MarginTop;
+            }
+
+        });
+
         this.addMouseListener(new MouseListener() {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                mouseX = e.getX();
-                mouseY = e.getY()-MarginTop;
-
                 mouseClicked = true;
                 // TODO Auto-generated method stub
                 //throw new UnsupportedOperationException("Unimplemented method 'mouseClicked'");
@@ -159,7 +174,7 @@ public class Jeu extends JFrame {
                 } else {
                     zoom(e);
                 }
-                System.out.println(textureSize);
+                System.out.println(Ts);
             }
 
         });
@@ -170,55 +185,40 @@ public class Jeu extends JFrame {
     }
 
     public void zoom(MouseWheelEvent e) {
-        int xtemp = posCameraX/textureSize;
-        int ytemp = posCameraY/textureSize;
-         textureSize-=5;
-        if(textureSize < 2) {
-            textureSize = 2;
+        int xtemp = posCameraX/Ts;
+        int ytemp = posCameraY/Ts;
+         Ts-=5;
+        if(Ts < 2) {
+            Ts = 2;
         }
         //RAY LIB CONNARD !
-        posCameraX = xtemp*textureSize;
-        posCameraY = ytemp*textureSize;
-        //posCameraX-=334;
-        //posCameraY-=198;
-        //System.out.println(e.getX());
-        //posCameraX-=(7*textureSize);
-        //posCameraY-=(6*textureSize);
-        //posCameraX+=(5*(width/textureSize))/2;
-        //posCameraX = e.getX()+(posCameraX-(width/2));
-        //posCameraY = e.getY()+(posCameraY-(height/2));
+        posCameraX = xtemp*Ts;
+        posCameraY = ytemp*Ts;
     }
 
     public void unzoom(MouseWheelEvent e) {
-        int xtemp = posCameraX/textureSize;
-        int ytemp = posCameraY/textureSize;
-        textureSize+=5;
-        if(textureSize > 500) {
-            textureSize = 500;
+        int xtemp = posCameraX/Ts;
+        int ytemp = posCameraY/Ts;
+        Ts+=5;
+        if(Ts > 700) {
+            Ts = 700;
         }
-        posCameraX = xtemp*textureSize;
-        posCameraY = ytemp*textureSize;
-       //posCameraX = e.getX()+(posCameraX-(width/2));
-        //posCameraY = e.getY()+(posCameraY-(height/2));
+        posCameraX = xtemp*Ts;
+        posCameraY = ytemp*Ts;
+    }
+
+    public void checkColision(Hitbox b) {
+        int Xx = posCameraX-(width/2);
+        int Yy = posCameraY-(height/2);
+        System.out.println("player touched: " + b.isCollision(Xx+mouseX, Yy+mouseY, Ts));
     }
 
     public void run() {
         Monde carte = new Monde(this.X, this.Y, 0.4);
-
-//        posCameraX =
-//        posCameraY =
-
-        // Batiment ville = new Ville(3);
-        // Batiment forge = new Forge(4);
-        // Batiment ferme = new Ferme(5);
-        // Batiment caserne = new Caserne(6);
-        // Obstacle rocher = new Obstacle(1);
-        // Bloc eau = new Bloc(0);
-        // Bloc herbe = new Bloc(1);
-        // Obstacle mur = new Obstacle(2);
-
-        // carte.show(true);
         setup();
+
+        Joueur player = new Joueur(20, 7, posCameraY/Ts, posCameraX/Ts);
+        carte.getEntitee()[posCameraY/Ts][posCameraX/Ts] = player;
 
         final double max_speed = 7.0f;
         final double acc = 1.0f;
@@ -231,6 +231,8 @@ public class Jeu extends JFrame {
         long start = System.currentTimeMillis();
         long lastdelta = System.currentTimeMillis();
 
+        boolean follow_mouse = false;
+
         while (inGame) {
 
             long now = System.currentTimeMillis();
@@ -238,28 +240,32 @@ public class Jeu extends JFrame {
 
             lastdelta = now;
 
-            // if (keysDown.contains(KeyEvent.VK_CONTROL) && rotation != 0) {
-            //     if (rotation < 0) {
-            //         zoom *= 2.0f;
-            //     } else {
-            //         zoom *= 0.5f;
-            //     }
-            //     if (zoom > 4) {
-            //         zoom = 4;
-            //     }
-
-            //     if (zoom < 0.25f) {
-            //         zoom = 0.25f;
-            //     }
-            //     System.out.println("zoom: " + zoom);
-            // }
-            // rotation = 0;
 
 
+            if(mouseClicked) {
+                int Xx = posCameraX-(width/2);
+                int Yy = posCameraY-(height/2);
+                follow_mouse = player.geHitbox().isCollision(Xx+mouseX, Yy+mouseY, Ts);
+            }
+
+            if(follow_mouse) {
+
+                if(mouseClicked) {
+                    int Xx = posCameraX-(width/2)+mouseX;
+                    int Yy = posCameraY-(height/2)+mouseY;
+                    System.out.println("pre coord: " + player.getX() + ", " + player.getY());
+                    carte.setCaseEntitee(player, Xx/Ts, Yy/Ts);
+                    carte.setCaseEntitee(null, player.getX(), player.getY());
+                    player.setX(Xx/Ts);
+                    player.setY(Yy/Ts);
+                    System.out.println("post coord: " + player.getX() + ", " + player.getY());
+                }
+            }
+            mouseClicked = false;
 
             if(System.currentTimeMillis()-cooldown.get("resetZoom") > 100) {
                 if(keysDown.contains(KeyEvent.VK_CONTROL) && keysDown.contains(KeyEvent.VK_F)) {
-                    textureSize = 50;
+                    Ts = 50;
                     cooldown.put("resetZoom", System.currentTimeMillis());
                 }
             }
@@ -267,30 +273,30 @@ public class Jeu extends JFrame {
 
             if(System.currentTimeMillis()-cooldown.get("ZoomIn") > 100) {
                 if(keysDown.contains(KeyEvent.VK_CONTROL) && keysDown.contains(KeyEvent.VK_ADD)) {
-                    int xtemp = posCameraX/textureSize;
-                    int ytemp = posCameraY/textureSize;
-                    textureSize*=2;
-                    if(textureSize > 500) {
-                        textureSize = 500;
+                    int xtemp = posCameraX/Ts;
+                    int ytemp = posCameraY/Ts;
+                    Ts*=2;
+                    if(Ts > 700) {
+                        Ts = 700;
                     }
                     cooldown.put("ZoomIn", System.currentTimeMillis());
-                    posCameraX = xtemp*textureSize;
-                    posCameraY = ytemp*textureSize;
+                    posCameraX = xtemp*Ts;
+                    posCameraY = ytemp*Ts;
                 }
             }
 
             if(System.currentTimeMillis()-cooldown.get("ZoomOut") > 100) {
                 if(keysDown.contains(KeyEvent.VK_CONTROL) && keysDown.contains(KeyEvent.VK_SUBTRACT)) {
-                    int xtemp = posCameraX/textureSize;
-                    int ytemp = posCameraY/textureSize;
+                    int xtemp = posCameraX/Ts;
+                    int ytemp = posCameraY/Ts;
 
-                    textureSize/=2;
-                    if(textureSize < 10) {
-                        textureSize = 10;
+                    Ts/=2;
+                    if(Ts < 10) {
+                        Ts = 10;
                     }
                     cooldown.put("ZoomOut", System.currentTimeMillis());
-                    posCameraX = xtemp*textureSize;
-                    posCameraY = ytemp*textureSize;
+                    posCameraX = xtemp*Ts;
+                    posCameraY = ytemp*Ts;
                 }
             }
 
@@ -355,23 +361,22 @@ public class Jeu extends JFrame {
                 posCameraY = height/2;
             }
 
-            if (posCameraX+(width/2) > ((X) * textureSize)) {
-                posCameraX = (X*textureSize)-(width/2);
+            if (posCameraX+(width/2) > ((X) * Ts)) {
+                posCameraX = (X*Ts)-(width/2);
             }
 
             // System.out.println((Y * 50) - 550);
-            if (posCameraY+(height/2) > (Y * textureSize)) {
-                posCameraY = (Y * textureSize) - (height/2);
+            if (posCameraY+(height/2) > (Y * Ts)) {
+                posCameraY = (Y * Ts) - (height/2);
             }
 
             // System.out.print("x: " + posCameraX + " y: " + posCameraY);
             // System.out.println();
             if(mouseClicked) {
                 System.out.println("X: " + mouseX + " Y: " + mouseY);
-                System.out.println("a: " + mouseX/textureSize + " b: " + mouseY / textureSize);
-                System.out.println("id texture: " + carte.getFloor()[mouseY/textureSize][mouseX/textureSize].id);
+                System.out.println("a: " + mouseX/Ts + " b: " + mouseY / Ts);
+                System.out.println("id texture: " + carte.getFloor()[mouseY/Ts][mouseX/Ts].id);
             }
-            mouseClicked = false;
             render(carte);
             frame++;
 
@@ -381,7 +386,7 @@ public class Jeu extends JFrame {
                 fps = frame;
                 frame = 0;
                 clear();
-                System.out.println(textureSize);
+                System.out.println(Ts);
                 System.out.println(" fps: " + fps);
             }
             // System.out.println(playervelocity);
@@ -403,7 +408,6 @@ public class Jeu extends JFrame {
 
         nettoyer();
 
-        int Ts = textureSize;
         offscreen.setColor(Color.BLACK);
         offscreen.setFont(new Font("Arial", Font.PLAIN, 10));
         carte.rendere(Ts, posCameraX, posCameraY, width, height, offscreen);
