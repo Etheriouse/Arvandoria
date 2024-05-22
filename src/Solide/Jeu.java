@@ -4,22 +4,22 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Point;
-import java.awt.Toolkit;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-import Solide.Batiments.Batiment;
-import Solide.Batiments.Caserne;
-import Solide.Batiments.Ferme;
-import Solide.Batiments.Forge;
-import Solide.Batiments.Ville;
-
+import java.awt.Toolkit;
+import java.awt.Point;
+import java.awt.Cursor;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.util.Hashtable;
 import java.util.TreeSet;
+import java.util.TreeMap;
 import javax.swing.ImageIcon;
 
 public class Jeu extends JFrame {
@@ -30,11 +30,19 @@ public class Jeu extends JFrame {
     private int width = 1600;
     private int height = 900;
 
+    private int mouseX = 0;
+    private int mouseY = 0;
+    private boolean mouseClicked = false;
+
+    private TreeMap<String, Long> cooldown = new TreeMap<>();
+
     private int posCameraX = 800;
     private int posCameraY = 450;
 
     //private int rotation = 0;
     //private float zoom = 1.0f;
+
+    private int MarginTop = 0;
 
     private int textureSize = 50;
 
@@ -46,35 +54,23 @@ public class Jeu extends JFrame {
     private Graphics2D onscreen = onscreenImage.createGraphics();
     private Graphics2D offscreen = offscreenImage.createGraphics();
 
-    private Image herbe = getImage("assets/herbe.png");
-    private Image mur = getImage("assets/mur.png");
-    private Image rocher = getImage("assets/rocher.png");
-    private Image ville = getImage("assets/ville.png");
-    private Image forge = getImage("assets/forge.png");
-    private Image habitation = getImage("assets/habitation.png");
-    private Image ferme = getImage("assets/ferme.png");
-    private Image error = getImage("assets/error.png");
-    private Image none = getImage("assets/none.png");
-
-    private Image eau = getImage("assets/tilemap/water/frame1sprite/frame1_water_34.png");
-
     private static TreeSet<Integer> keysDown;
     private static Hashtable<Integer, String> nomsTouches = new Hashtable<Integer, String>();
 
     public Jeu() {
-        this.X = 50;
-        this.Y = 50;
+        this.X = 200;
+        this.Y = 200;
     }
 
     private void setup() {
-
+        Settings.setup();
         this.setTitle("game");
         this.setResizable(false);
         this.setSize(width, height);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setVisible(true);
         Image Cursor = getImage("assets/cursor.png");
-        java.awt.Cursor gauntletCursor = Toolkit.getDefaultToolkit().createCustomCursor(
+        Cursor gauntletCursor = Toolkit.getDefaultToolkit().createCustomCursor(
                 Cursor, new Point(0, 0), "gauntlet cursor");
         this.setCursor(gauntletCursor);
         this.setContentPane(new JLabel(new ImageIcon(onscreenImage)));
@@ -83,6 +79,9 @@ public class Jeu extends JFrame {
         this.setVisible(true);
         keysDown = new TreeSet<Integer>();
 
+        nomsTouches.put(KeyEvent.VK_CONTROL, "CTRL");
+        nomsTouches.put(KeyEvent.VK_ADD, "Add");
+        nomsTouches.put(KeyEvent.VK_SUBTRACT, "Sub");
         nomsTouches.put(KeyEvent.VK_ENTER, "Entree");
         nomsTouches.put(KeyEvent.VK_ESCAPE, "Echap");
         nomsTouches.put(KeyEvent.VK_LEFT, "Gauche");
@@ -109,19 +108,103 @@ public class Jeu extends JFrame {
                 keysDown.remove(e.getKeyCode());
             }
         });
-        // this.addMouseWheelListener((MouseWheelListener) new MouseWheelListener() {
-        //     @Override
-        //     public void mouseWheelMoved(MouseWheelEvent e) {
-        //         rotation = e.getWheelRotation();
-        //     }
-        // });
+
+        MarginTop = this.getInsets().top;
+        this.addMouseListener(new MouseListener() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                mouseX = e.getX();
+                mouseY = e.getY()-MarginTop;
+
+                mouseClicked = true;
+                // TODO Auto-generated method stub
+                //throw new UnsupportedOperationException("Unimplemented method 'mouseClicked'");
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                // TODO Auto-generated method stub
+                //throw new UnsupportedOperationException("Unimplemented method 'mousePressed'");
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                // TODO Auto-generated method stub
+                //throw new UnsupportedOperationException("Unimplemented method 'mouseReleased'");
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                // TODO Auto-generated method stub
+                //throw new UnsupportedOperationException("Unimplemented method 'mouseEntered'");
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                // TODO Auto-generated method stub
+                //throw new UnsupportedOperationException("Unimplemented method 'mouseExited'");
+            }
+
+        });
+
+        this.addMouseWheelListener(new MouseWheelListener() {
+
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                if(e.getWheelRotation() < 0 ) {
+                    unzoom(e);
+                } else {
+                    zoom(e);
+                }
+                System.out.println(textureSize);
+            }
+
+        });
+
+        cooldown.put("ZoomIn", 0L);
+        cooldown.put("ZoomOut", 0L);
+        cooldown.put("resetZoom", 0L);
+    }
+
+    public void zoom(MouseWheelEvent e) {
+        int xtemp = posCameraX/textureSize;
+        int ytemp = posCameraY/textureSize;
+         textureSize-=5;
+        if(textureSize < 20) {
+            textureSize = 20;
+        }
+        //RAY LIB CONNARD !
+        posCameraX = xtemp*textureSize;
+        posCameraY = ytemp*textureSize;
+        //posCameraX-=334;
+        //posCameraY-=198;
+        //System.out.println(e.getX());
+        //posCameraX-=(7*textureSize);
+        //posCameraY-=(6*textureSize);
+        //posCameraX+=(5*(width/textureSize))/2;
+        //posCameraX = e.getX()+(posCameraX-(width/2));
+        //posCameraY = e.getY()+(posCameraY-(height/2));
+    }
+
+    public void unzoom(MouseWheelEvent e) {
+        int xtemp = posCameraX/textureSize;
+        int ytemp = posCameraY/textureSize;
+        textureSize+=5;
+        if(textureSize > 500) {
+            textureSize = 500;
+        }
+        posCameraX = xtemp*textureSize;
+        posCameraY = ytemp*textureSize;
+       //posCameraX = e.getX()+(posCameraX-(width/2));
+        //posCameraY = e.getY()+(posCameraY-(height/2));
     }
 
     public void run() {
         Monde carte = new Monde(this.X, this.Y, 0.4);
 
-        posCameraX = (X * 50) / 2;
-        posCameraY = (Y * 50) / 2;
+//        posCameraX =
+//        posCameraY =
 
         // Batiment ville = new Ville(3);
         // Batiment forge = new Forge(4);
@@ -169,6 +252,45 @@ public class Jeu extends JFrame {
             //     System.out.println("zoom: " + zoom);
             // }
             // rotation = 0;
+
+
+
+            if(System.currentTimeMillis()-cooldown.get("resetZoom") > 100) {
+                if(keysDown.contains(KeyEvent.VK_CONTROL) && keysDown.contains(KeyEvent.VK_F)) {
+                    textureSize = 50;
+                    cooldown.put("resetZoom", System.currentTimeMillis());
+                }
+            }
+
+
+            if(System.currentTimeMillis()-cooldown.get("ZoomIn") > 100) {
+                if(keysDown.contains(KeyEvent.VK_CONTROL) && keysDown.contains(KeyEvent.VK_ADD)) {
+                    int xtemp = posCameraX/textureSize;
+                    int ytemp = posCameraY/textureSize;
+                    textureSize*=2;
+                    if(textureSize > 500) {
+                        textureSize = 500;
+                    }
+                    cooldown.put("ZoomIn", System.currentTimeMillis());
+                    posCameraX = xtemp*textureSize;
+                    posCameraY = ytemp*textureSize;
+                }
+            }
+
+            if(System.currentTimeMillis()-cooldown.get("ZoomOut") > 100) {
+                if(keysDown.contains(KeyEvent.VK_CONTROL) && keysDown.contains(KeyEvent.VK_SUBTRACT)) {
+                    int xtemp = posCameraX/textureSize;
+                    int ytemp = posCameraY/textureSize;
+
+                    textureSize/=2;
+                    if(textureSize < 10) {
+                        textureSize = 10;
+                    }
+                    cooldown.put("ZoomOut", System.currentTimeMillis());
+                    posCameraX = xtemp*textureSize;
+                    posCameraY = ytemp*textureSize;
+                }
+            }
 
             if (keysDown.contains(KeyEvent.VK_D)) {
                 playervelocityX += (acc) * delta;
@@ -223,27 +345,31 @@ public class Jeu extends JFrame {
             // System.out.println("delta: " + delta + " velocity: " + playervelocityX + "
             // pos: " + posCameraX);
 
-            if (posCameraX < 800) {
-                posCameraX = 800;
+            if (posCameraX < width/2) {
+                posCameraX = width/2;
             }
 
-            if (posCameraY < 450) {
-                posCameraY = 450;
+            if (posCameraY < height/2) {
+                posCameraY = height/2;
             }
 
-            // System.out.println((X * 50) - 900);
-            if (posCameraX > (X * 50) - 900) {
-                posCameraX = (X * 50) - 900;
+            if (posCameraX+(width/2) > ((X) * textureSize)) {
+                posCameraX = (X*textureSize)-(width/2);
             }
 
             // System.out.println((Y * 50) - 550);
-            if (posCameraY > (Y * 50) - 550) {
-                posCameraY = (Y * 50) - 550;
+            if (posCameraY+(height/2) > (Y * textureSize)) {
+                posCameraY = (Y * textureSize) - (height/2);
             }
 
             // System.out.print("x: " + posCameraX + " y: " + posCameraY);
             // System.out.println();
-
+            if(mouseClicked) {
+                System.out.println("X: " + mouseX + " Y: " + mouseY);
+                System.out.println("a: " + mouseX/textureSize + " b: " + mouseY / textureSize);
+                System.out.println("id texture: " + carte.getFloor()[mouseY/textureSize][mouseX/textureSize].id);
+            }
+            mouseClicked = false;
             render(carte);
             frame++;
 
@@ -272,161 +398,22 @@ public class Jeu extends JFrame {
     }
 
     private void render(Monde carte) {
+
         nettoyer();
 
-        int xmoin = posCameraX - 800;
-        int parseXmoin = xmoin / 50;
-        int startCal = (parseXmoin * 50) - xmoin;
-
-        int ymoin = posCameraY - 450;
-        int parseYmoin = ymoin / 50;
-        int startCalY = (parseYmoin * 50) - ymoin;
-
-        //textureSize = (int) (50 * zoom);
-
-        renderFloor(carte, startCal, startCalY);
-        renderObjet(carte, startCal, startCalY);
-        renderEntitee(carte, startCal, startCalY);
-
+        int Ts = textureSize;
         offscreen.setColor(Color.BLACK);
-        offscreen.setFont(new Font("Arial", Font.PLAIN, 20));
+        offscreen.setFont(new Font("Arial", Font.PLAIN, 10));
+        carte.rendere(Ts, posCameraX, posCameraY, width, height, offscreen);
+
         offscreen.drawString("fps " + fps, 2, 20);
-        offscreen.setColor(Color.WHITE);
+        offscreen.setColor(Color.RED);
+        offscreen.setFont(new Font("Arial", Font.PLAIN, 50));
+        offscreen.drawString(".", width/2, height/2);
+        offscreen.setColor(Color.BLACK);
 
         rafraichir();
 
-    }
-
-    private void renderFloor(Monde carte, int startWithX, int startWithY) {
-        // TODO pour plus tard le zoom
-        // for (int y = startWithY - textureSize, b = posCameraY - 450; y < startWithY +
-        // 950; b += textureSize, y += textureSize) {
-        // for (int i = startWithX - textureSize, n = posCameraX - 800; i < startWithX +
-        // 1650; n += textureSize, i += textureSize) {
-        for (int y = startWithY - 50, b = posCameraY - 450; y < startWithY + 950; b += 50, y += 50) {
-            for (int i = startWithX - 50, n = posCameraX - 800; i < startWithX + 1650; n += 50, i += 50) {
-                if (carte.getFloor()[b / 50][n / 50] != null) {
-                    switch (carte.getFloor()[b / 50][n / 50].id) {
-                        case -1:
-                            offscreen.drawImage(none, i, y, textureSize, textureSize, null);
-                            break;
-                        case 0:
-                            // eau
-                            //offscreen.drawImage(Settings.getImageFromNumber(Settings.getGoodSpriteByPlacement(0, Settings.getThreeArray2D(n, b, carte))), i, y, textureSize, textureSize, null);
-                            offscreen.drawImage(eau, i, y, textureSize, textureSize, null);
-                            break;
-                        case 1:
-                            offscreen.drawImage(herbe, i, y, textureSize, textureSize, null);
-                            break;
-                        default:
-                            offscreen.drawImage(error, i, y, textureSize, textureSize, null);
-                            break;
-                    }
-
-                }
-            }
-        }
-    }
-
-    private void renderObjet(Monde carte, int startWithX, int startWithY) {
-        for (int y = startWithY - 50, b = posCameraY - 450; y < startWithY + 950; b += 50, y += 50) {
-            for (int i = startWithX - 50, n = posCameraX - 800; i < startWithX + 1650; n += 50, i += 50) {
-
-                if (carte.getObjet()[b / 50][n / 50] != null) {
-                    switch (carte.getObjet()[b / 50][n / 50].id) {
-                        case -1:
-                            // System.out.println("bah?");
-                            offscreen.drawImage(none, i, y, textureSize, textureSize, null);
-                            break;
-                        case 0:
-                            // herbe
-                            offscreen.drawImage(herbe, i, y, textureSize, textureSize, null);
-                            break;
-                        case 1:
-                            // rocher
-                            offscreen.drawImage(rocher, i, y, textureSize, textureSize, null);
-                            break;
-                        case 2:
-                            // mur ou border
-                            offscreen.drawImage(mur, i, y, textureSize, textureSize, null);
-                            break;
-                        case 3:
-                            // ville
-                            offscreen.drawImage(ville, i, y, textureSize, textureSize, null);
-                            break;
-                        case 4:
-                            // batiment utilitaire
-                            offscreen.drawImage(forge, i, y, textureSize, textureSize, null);
-                            break;
-                        case 5:
-                            // batiment utilitaire
-                            offscreen.drawImage(ferme, i, y, textureSize, textureSize, null);
-                            break;
-                        case 6:
-                            // batiment utilitaire
-                            offscreen.drawImage(habitation, i, y, textureSize, textureSize, null);
-                            break;
-
-                        default:
-                            offscreen.drawImage(error, i, y, textureSize, textureSize, null);
-                            break;
-                    }
-
-                }
-
-            }
-        }
-    }
-
-    private void renderEntitee(Monde carte, int startWithX, int startWithY) {
-
-        for (int y = startWithY - 50, b = posCameraY - 450; y < startWithY + 950; b += 50, y += 50) {
-            for (int i = startWithX - 50, n = posCameraX - 800; i < startWithX + 1650; n += 50, i += 50) {
-
-                if (carte.getEntitee()[b / 50][n / 50] != null) {
-                    switch (carte.getEntitee()[b / 50][n / 50].id) {
-                        case -1:
-                            // System.out.println("bah?");
-                            offscreen.drawImage(none, i, y, textureSize, textureSize, null);
-                            break;
-                        case 0:
-                            // herbe
-                            offscreen.drawImage(herbe, i, y, textureSize, textureSize, null);
-                            break;
-                        case 1:
-                            // rocher
-                            offscreen.drawImage(rocher, i, y, textureSize, textureSize, null);
-                            break;
-                        case 2:
-                            // mur ou border
-                            offscreen.drawImage(mur, i, y, textureSize, textureSize, null);
-                            break;
-                        case 3:
-                            // ville
-                            offscreen.drawImage(ville, i, y, textureSize, textureSize, null);
-                            break;
-                        case 4:
-                            // batiment utilitaire
-                            offscreen.drawImage(forge, i, y, textureSize, textureSize, null);
-                            break;
-                        case 5:
-                            // batiment utilitaire
-                            offscreen.drawImage(ferme, i, y, textureSize, textureSize, null);
-                            break;
-                        case 6:
-                            // batiment utilitaire
-                            offscreen.drawImage(habitation, i, y, textureSize, textureSize, null);
-                            break;
-
-                        default:
-                            offscreen.drawImage(error, i, y, textureSize, textureSize, null);
-                            break;
-                    }
-
-                }
-
-            }
-        }
     }
 
     public static Jeu newInstance() {
@@ -470,6 +457,7 @@ public class Jeu extends JFrame {
      *
      * @return la string correspondant a la touche presser
      */
+    @SuppressWarnings("unused")
     private static String trouveProchaineEntree() {
         while (true) {
             for (Integer k : nomsTouches.keySet()) {

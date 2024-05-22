@@ -1,12 +1,25 @@
 package Solide;
 
+import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.awt.Graphics2D;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 
-public class Monde {
+public class Monde implements Graph {
+
+    /**
+     * Fonction permetant d'obtenir une image a partir d'un chemin de texture
+     *
+     * @param filename un chemin de texture
+     * @return une image correspondant au chemin de texture
+     */
+    public static Image getImage(String filename) {
+        return new ImageIcon(filename).getImage();
+    }
 
     private Entitee[][] entitee;
     private Objet[][] objet;
@@ -53,12 +66,8 @@ public class Monde {
                     int pixel = floorImage.getRGB(x, y);
 
                     int red = (pixel >> 16) & 0xFF;
-                    int green = (pixel >> 8) & 0xFF;
-                    int blue = pixel & 0xFF;
 
                     this.floor[y][x] = new Bloc(red);
-                    //TODO gerer sa this.objet[x][y] = new Objet(green);
-                    //TODO gerer sa this.entitee[x][y] = new Entitee(blue);
                 }
             }
         } catch (IOException e) {
@@ -179,5 +188,67 @@ public class Monde {
 
     public void setObjet(Objet[][] objet) {
         this.objet = objet;
+    }
+
+    @Override
+    public void rendere(int Ts, int posCameraX, int posCameraY, int width, int height, Graphics2D offscreen) {
+        int X = posCameraX - (width/2);
+        int Tx = X/Ts;
+        int Ex = -(X-(Tx*Ts));
+
+        int Y = posCameraY - (height/2);
+        int Ty = Y/Ts;
+        int Ey = -(Y-(Ty*Ts));
+
+        rendere(TypeFlat.Floor, Ex, Ey, (-Ex+(width)), (-Ey+(height)), X, Y, Ts, offscreen);
+        rendere(TypeFlat.Objet, Ex, Ey, (-Ex+(width)), (-Ey+(height)), X, Y, Ts, offscreen);
+        rendere(TypeFlat.Entiee, Ex, Ey, (-Ex+(width)), (-Ey+(height)), X, Y, Ts, offscreen);
+    }
+
+    private void rendere(TypeFlat type, int Sx, int Sy, int Ex, int Ey, int X, int Y, int Ts, Graphics2D offscreen) {
+
+        Objet toRenderer[][] = this.floor;
+
+        switch (type) {
+            case TypeFlat.Floor:
+                toRenderer = this.floor;
+                break;
+
+            case TypeFlat.Objet:
+                toRenderer = this.objet;
+                break;
+
+            case TypeFlat.Entiee:
+                toRenderer = this.entitee;
+                break;
+
+            default:
+                toRenderer = this.floor;
+                break;
+        }
+
+        for (int y = Sy, b = Y/Ts; y < Ey; b+=1, y += Ts) {
+            for (int x = Sx, a = X/Ts; x < Ex; a+=1, x += Ts) {
+
+                if(b < toRenderer.length && a < toRenderer[b].length) {
+                    if (toRenderer[b][a] != null) {
+                        switch (toRenderer[b][a].id) {
+                            case -1:
+                                offscreen.drawImage(Settings.Textures.get("None"), x, y, Ts, Ts, null);
+                                break;
+                            case 0:
+                                offscreen.drawImage(Settings.Textures.get("Eau"), x, y, Ts, Ts, null);
+                                break;
+                            case 1:
+                                offscreen.drawImage(Settings.Textures.get("Herbe"), x, y, Ts, Ts, null);
+                                break;
+                                default:
+                                offscreen.drawImage(Settings.Textures.get("Error"), x, y, Ts, Ts, null);
+                                break;
+                        }
+                    }
+                }
+            }
+        }
     }
 }

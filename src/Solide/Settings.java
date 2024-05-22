@@ -1,11 +1,49 @@
 package Solide;
+
 import java.awt.Image;
+import java.util.TreeMap;
+
 
 public class Settings {
 
+    private static Image herbe = Jeu.getImage("assets/herbe.png");
+    private static Image mur =Jeu.getImage("assets/mur.png");
+    private static Image rocher =Jeu.getImage("assets/rocher.png");
+    private static Image ville =Jeu.getImage("assets/ville.png");
+    private static Image forge =Jeu.getImage("assets/forge.png");
+    private static Image habitation =Jeu.getImage("assets/habitation.png");
+    private static Image ferme =Jeu.getImage("assets/ferme.png");
+    private static Image error =Jeu.getImage("assets/error.png");
+    private static Image none =Jeu.getImage("assets/none.png");
+
+    private static Image eau =Jeu.getImage("assets/tilemap/water/frame1sprite/frame1_water_34.png");
+
+
+    static final TreeMap<String, Image> Textures = new TreeMap<>();
+
+    public static void setup() {
+        Textures.put("Herbe", herbe);
+        Textures.put("Eau", eau);
+        Textures.put("Mur", mur);
+        Textures.put("Rocher", rocher);
+        Textures.put("Ville", ville);
+        Textures.put("Forge", forge);
+        Textures.put("Habitation", habitation);
+        Textures.put("Ferme", ferme);
+        Textures.put("Error", error);
+        Textures.put("None", none);
+    }
+
+    public static void CalculePlusPetitDiviseurCommun(int a, int b, int echantillons) {
+        for(int i = 2; i<echantillons; i++) {
+            if(a%i == 0 && b%i == 0) {
+                System.out.println(i+" est un diviseur commun de " + a + " et de " + b +".");
+            }
+        }
+    }
+
     /**
      * Addapte la valeur d'une texture a sont emplacement
-     *
      * @param valueOfSprite la valeur de l'objet
      * @param t             un tableau de 3 par 3 avec en sont centre la sprite a
      *                      determiner
@@ -160,24 +198,26 @@ public class Settings {
     }
 
     public static void main(String[] args) {
-        Monde m = new Monde(3, 3);
-        m.setCaseFloor(new Bloc(0), 0, 0);
-        m.setCaseFloor(new Bloc(1), 1, 0);
-        m.setCaseFloor(new Bloc(1), 2, 0);
-        m.setCaseFloor(new Bloc(1), 0, 1);
-        m.setCaseFloor(new Bloc(1), 1, 1);
-        m.setCaseFloor(new Bloc(1), 2, 1);
-        m.setCaseFloor(new Bloc(1), 0, 2);
-        m.setCaseFloor(new Bloc(1), 1, 2);
-        m.setCaseFloor(new Bloc(1), 2, 2);
-        m.show(true, 0);
-        int[][] t = getThreeArray2D(1, 1, m);
-        for (int[] is : t) {
-            for (int i : is) {
-                System.out.print(i + " ");
-            }
-            System.out.println();
-        }
-        System.out.println();
+        // Monde m = new Monde(3, 3);
+        // m.setCaseFloor(new Bloc(0), 0, 0);
+        // m.setCaseFloor(new Bloc(1), 1, 0);
+        // m.setCaseFloor(new Bloc(1), 2, 0);
+        // m.setCaseFloor(new Bloc(1), 0, 1);
+        // m.setCaseFloor(new Bloc(1), 1, 1);
+        // m.setCaseFloor(new Bloc(1), 2, 1);
+        // m.setCaseFloor(new Bloc(1), 0, 2);
+        // m.setCaseFloor(new Bloc(1), 1, 2);
+        // m.setCaseFloor(new Bloc(1), 2, 2);
+        // m.show(true, 0);
+        // int[][] t = getThreeArray2D(1, 1, m);
+        // for (int[] is : t) {
+        //     for (int i : is) {
+        //         System.out.print(i + " ");
+        //     }
+        //     System.out.println();
+        // }
+        // System.out.println();
+
+        CalculePlusPetitDiviseurCommun(1600, 900, 500);
     }
 }
