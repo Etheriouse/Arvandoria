@@ -1,7 +1,7 @@
 package Solide;
+
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.random.*;
 import java.util.List;
 import java.util.Random;
 
@@ -29,6 +29,8 @@ public class PerlinNoise {
             61, 156, 180 };
 
     private static final int[] p = new int[512];
+    private static final double SCALE = 0.1;
+    private static final double ISLAND_FACTOR = 1.5;
     private static List<Integer> pl = new ArrayList<>();
 
     static {
@@ -45,23 +47,24 @@ public class PerlinNoise {
     }
 
     // private static void main(String[] args) {
-    //     System.out.println(PERMUTATION.length);
-    //     int width = 22;
-    //     int height = 22;
-    //     double scale = 0.15;
-    //     double[][] noiseGrid = generatePerlinNoise(width, height, scale);
-    //     double[][] normalizedGrid = normalizeNoise(noiseGrid);
-    //     int[][] terrainMap = createTerrainMap(normalizedGrid, 0.3); // 0.5 continental // 0.7 archipelle // 0.3 pangea
+    // System.out.println(PERMUTATION.length);
+    // int width = 22;
+    // int height = 22;
+    // double scale = 0.15;
+    // double[][] noiseGrid = generatePerlinNoise(width, height, scale);
+    // double[][] normalizedGrid = normalizeNoise(noiseGrid);
+    // int[][] terrainMap = createTerrainMap(normalizedGrid, 0.3); // 0.5
+    // continental // 0.7 archipelle // 0.3 pangea
 
-    //     // Display the map (optional)
-    //     displayMap(terrainMap);
+    // // Display the map (optional)
+    // displayMap(terrainMap);
     // }
 
     /**
      *
-     * @param width Longueur de la carte
+     * @param width  Longueur de la carte
      * @param height Largeur de la carte
-     * @param type type de la carte
+     * @param type   type de la carte
      * @note 0.2 pangea type, 0.4 continental type, 0.6 archipel type
      *
      * @return un tableau de int des continent et oceant selon le type choisi
@@ -97,9 +100,9 @@ public class PerlinNoise {
         int BB = p[B + 1];
 
         return lerp(v, lerp(u, grad(p[AA], x, y),
-                               grad(p[BA], x - 1, y)),
-                       lerp(u, grad(p[AB], x, y - 1),
-                               grad(p[BB], x - 1, y - 1)));
+                grad(p[BA], x - 1, y)),
+                lerp(u, grad(p[AB], x, y - 1),
+                        grad(p[BB], x - 1, y - 1)));
     }
 
     private static double fade(double t) {
@@ -150,29 +153,25 @@ public class PerlinNoise {
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if (noiseGrid[y][x] < waterLevel) {
-                    terrainMap[y][x] = 0; // 0 représente l'eau
-                } else {
-                    terrainMap[y][x] = 1; // 1 représente la terre
-                }
+                terrainMap[y][x] = getTerrain(noiseGrid[y][x], waterLevel);
             }
         }
         return terrainMap;
     }
 
-    private static void displayMap(int[][] terrainMap) {
-        int height = terrainMap.length;
-        int width = terrainMap[0].length;
-
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                if (terrainMap[y][x] == 0) {
-                    System.out.print("~ "); // Eau
-                } else {
-                    System.out.print("# "); // Terre
-                }
-            }
-            System.out.println();
+    private static int getTerrain(double noiseValue, double waterLevel) {
+        if (noiseValue < 0+waterLevel) {
+            return 0; // water
+        } else if (noiseValue < 0.05+waterLevel) {
+            return 2; // sand
+        } else if (noiseValue < 0.2+waterLevel) {
+            return 1; // grass
+        } else if (noiseValue < 0.4+waterLevel) {
+            return 3; // forest
+        } else if (noiseValue < 0.6+waterLevel) {
+             return 4; // moutain
+        } else {
+            return 4;
         }
     }
 }

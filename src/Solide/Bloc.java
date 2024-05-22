@@ -33,4 +33,22 @@ public class Bloc extends Objet {
         this.texture_path = texture_path;
     }
 
+    @Override
+    public String toString() {
+        switch (id) {
+            case 0:
+                return "water";
+            case 1:
+                return "grass";
+            case 2:
+                return "sand";
+            case 3:
+                return "forest";
+            case 4:
+                return "moutain";
+            default:
+                return "not found";
+        }
+    }
+
 }

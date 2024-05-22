@@ -22,7 +22,6 @@ public abstract class Entitee extends Objet {
     }
 
 
-
     public int getMax_hp() {
         return max_hp;
     }

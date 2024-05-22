@@ -66,8 +66,11 @@ public class Monde implements Graph {
                     int pixel = floorImage.getRGB(x, y);
 
                     int red = (pixel >> 16) & 0xFF;
+                    int green = (pixel >> 8) & 0xFF;
+                    //int blue = pixel & 0xFF;
 
                     this.floor[y][x] = new Bloc(red);
+                    this.objet[x][y] = Objet.getObjet(green);
                 }
             }
         } catch (IOException e) {
@@ -150,10 +153,6 @@ public class Monde implements Graph {
         System.out.println();
     }
 
-    public void render() {
-
-    }
-
     public void setCaseObjet(Objet obj, int x, int y) {
         this.objet[y][x] = obj;
     }
@@ -232,6 +231,7 @@ public class Monde implements Graph {
 
                 if(b < toRenderer.length && a < toRenderer[b].length) {
                     if (toRenderer[b][a] != null) {
+                        offscreen.drawImage(Settings.Textures.get("Herbe"), x, y, Ts, Ts, null);
                         switch (toRenderer[b][a].id) {
                             case -1:
                                 offscreen.drawImage(Settings.Textures.get("None"), x, y, Ts, Ts, null);
@@ -242,7 +242,16 @@ public class Monde implements Graph {
                             case 1:
                                 offscreen.drawImage(Settings.Textures.get("Herbe"), x, y, Ts, Ts, null);
                                 break;
-                                default:
+                            case 2:
+                                offscreen.drawImage(Settings.Textures.get("Sable"), x, y, Ts, Ts, null);
+                                break;
+                            case 3:
+                                offscreen.drawImage(Settings.Textures.get("Foret"), x, y, Ts, Ts, null);
+                                break;
+                            case 4:
+                                offscreen.drawImage(Settings.Textures.get("Montagne"), x, y, Ts, Ts, null);
+                                break;
+                            default:
                                 offscreen.drawImage(Settings.Textures.get("Error"), x, y, Ts, Ts, null);
                                 break;
                         }

@@ -36,15 +36,16 @@ public class Jeu extends JFrame {
 
     private TreeMap<String, Long> cooldown = new TreeMap<>();
 
-    private int posCameraX = 800;
-    private int posCameraY = 450;
+    private int textureSize = 50;
+
+    private int posCameraX = X*textureSize/2;
+    private int posCameraY = Y*textureSize/2;
 
     //private int rotation = 0;
     //private float zoom = 1.0f;
 
     private int MarginTop = 0;
 
-    private int textureSize = 50;
 
     private double fps = 0;
 
@@ -58,8 +59,8 @@ public class Jeu extends JFrame {
     private static Hashtable<Integer, String> nomsTouches = new Hashtable<Integer, String>();
 
     public Jeu() {
-        this.X = 200;
-        this.Y = 200;
+        this.X = 1000;
+        this.Y = 1000;
     }
 
     private void setup() {
@@ -93,6 +94,7 @@ public class Jeu extends JFrame {
         nomsTouches.put(KeyEvent.VK_M, "M");
         nomsTouches.put(KeyEvent.VK_S, "S");
         nomsTouches.put(KeyEvent.VK_K, "K");
+
         this.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -171,8 +173,8 @@ public class Jeu extends JFrame {
         int xtemp = posCameraX/textureSize;
         int ytemp = posCameraY/textureSize;
          textureSize-=5;
-        if(textureSize < 20) {
-            textureSize = 20;
+        if(textureSize < 2) {
+            textureSize = 2;
         }
         //RAY LIB CONNARD !
         posCameraX = xtemp*textureSize;

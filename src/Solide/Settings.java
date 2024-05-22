@@ -6,7 +6,6 @@ import java.util.TreeMap;
 
 public class Settings {
 
-    private static Image herbe = Jeu.getImage("assets/herbe.png");
     private static Image mur =Jeu.getImage("assets/mur.png");
     private static Image rocher =Jeu.getImage("assets/rocher.png");
     private static Image ville =Jeu.getImage("assets/ville.png");
@@ -17,6 +16,10 @@ public class Settings {
     private static Image none =Jeu.getImage("assets/none.png");
 
     private static Image eau =Jeu.getImage("assets/tilemap/water/frame1sprite/frame1_water_34.png");
+    private static Image herbe = Jeu.getImage("assets/herbe.png");
+    private static Image montagne =Jeu.getImage("assets/moutaine.png");
+    private static Image sable = Jeu.getImage("assets/sand.png");
+    private static Image foret =Jeu.getImage("assets/tree.png");
 
 
     static final TreeMap<String, Image> Textures = new TreeMap<>();
@@ -24,6 +27,9 @@ public class Settings {
     public static void setup() {
         Textures.put("Herbe", herbe);
         Textures.put("Eau", eau);
+        Textures.put("Montagne", montagne);
+        Textures.put("Sable", sable);
+        Textures.put("Foret", foret);
         Textures.put("Mur", mur);
         Textures.put("Rocher", rocher);
         Textures.put("Ville", ville);
