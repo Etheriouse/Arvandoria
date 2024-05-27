@@ -10,7 +10,6 @@ import javax.swing.ImageIcon;
 
 import Solide.Entitee.Entitee;
 
-
 public class Monde implements Graph {
 
     /**
@@ -69,7 +68,7 @@ public class Monde implements Graph {
 
                     int red = (pixel >> 16) & 0xFF;
                     int green = (pixel >> 8) & 0xFF;
-                    //int blue = pixel & 0xFF;
+                    // int blue = pixel & 0xFF;
 
                     this.floor[y][x] = new Bloc(red);
                     this.objet[x][y] = Objet.getObjet(green);
@@ -86,8 +85,8 @@ public class Monde implements Graph {
         this.objet = new Objet[y][x];
         this.entitee = new Entitee[y][x];
         int[][] perlinMap = PerlinNoise.generateProcedural(x, y, type);
-        for(int height = 0; height<y; height++) {
-            for(int width = 0; width<x; width++) {
+        for (int height = 0; height < y; height++) {
+            for (int width = 0; width < x; width++) {
                 this.floor[height][width] = new Bloc(perlinMap[height][width]);
             }
         }
@@ -191,19 +190,62 @@ public class Monde implements Graph {
         this.objet = objet;
     }
 
+    private void renderEntity(int Ts, int posCameraX, int posCameraY, int width, int height, Graphics2D offscreen) {
+        int x, y, Ex, Ey;
+
+        int X = posCameraX - (width / 2);
+        int Y = posCameraY - (height / 2);
+
+
+        for (int i = 0; i < this.entitee.length; i++) {
+            for (int j = 0; j < this.entitee[i].length; j++) {
+                if (this.entitee[i][j] != null) {
+
+                    x = this.entitee[i][j].getX();
+                    y = this.entitee[i][j].getY();
+
+                    Ex = x - X;
+                    Ey = y - Y;
+
+                    //if (!(Ex < -Ts)) {
+                        //System.out.println("outside x");
+                        //if (!(Ey < -Ts)) {
+                            //System.out.println("outside x");
+                            System.out.println("Entity is at: " + Ex + " " + Ey);
+                            System.out.println(posCameraX + " " + X);
+                            offscreen.drawImage(Settings.Textures.get("Joueur"), Ex, Ey, Ts, Ts, null);
+                        //}
+                    //}
+                }
+            }
+        }
+    }
+
+    public int countEntite() {
+        int sum = 0;
+        for (Entitee[] entitees : entitee) {
+            for (Entitee entitee : entitees) {
+                if(entitee != null) {
+                    sum++;
+                }
+            }
+        }
+        return sum;
+    }
+
     @Override
     public void rendere(int Ts, int posCameraX, int posCameraY, int width, int height, Graphics2D offscreen) {
-        int X = posCameraX - (width/2);
-        int Tx = X/Ts;
-        int Ex = -(X-(Tx*Ts));
+        int X = posCameraX - (width / 2);
+        int Tx = X / Ts;
+        int Ex = -(X - (Tx * Ts));
 
-        int Y = posCameraY - (height/2);
-        int Ty = Y/Ts;
-        int Ey = -(Y-(Ty*Ts));
+        int Y = posCameraY - (height / 2);
+        int Ty = Y / Ts;
+        int Ey = -(Y - (Ty * Ts));
 
-        rendere(TypeFlat.Floor, Ex, Ey, (-Ex+(width)), (-Ey+(height)), X, Y, Ts, offscreen);
-        rendere(TypeFlat.Objet, Ex, Ey, (-Ex+(width)), (-Ey+(height)), X, Y, Ts, offscreen);
-        rendere(TypeFlat.Entiee, Ex, Ey, (-Ex+(width)), (-Ey+(height)), X, Y, Ts, offscreen);
+        rendere(TypeFlat.Floor, Ex, Ey, (-Ex + (width)), (-Ey + (height)), X, Y, Ts, offscreen);
+        rendere(TypeFlat.Objet, Ex, Ey, (-Ex + (width)), (-Ey + (height)), X, Y, Ts, offscreen);
+        renderEntity(Ts, posCameraX, posCameraY, width, height, offscreen);
     }
 
     private void rendere(TypeFlat type, int Sx, int Sy, int Ex, int Ey, int X, int Y, int Ts, Graphics2D offscreen) {
@@ -219,21 +261,17 @@ public class Monde implements Graph {
                 toRenderer = this.objet;
                 break;
 
-            case TypeFlat.Entiee:
-                toRenderer = this.entitee;
-                break;
-
             default:
                 toRenderer = this.floor;
                 break;
         }
 
-        for (int y = Sy, b = Y/Ts; y < Ey; b+=1, y += Ts) {
-            for (int x = Sx, a = X/Ts; x < Ex; a+=1, x += Ts) {
+        for (int y = Sy, b = Y / Ts; y < Ey; b += 1, y += Ts) {
+            for (int x = Sx, a = X / Ts; x < Ex; a += 1, x += Ts) {
 
-                if(b < toRenderer.length && a < toRenderer[b].length) {
+                if (b < toRenderer.length && a < toRenderer[b].length) {
                     if (toRenderer[b][a] != null) {
-                        if(TypeFlat.Floor == type) {
+                        if (TypeFlat.Floor == type) {
                             offscreen.drawImage(Settings.Textures.get("Herbe"), x, y, Ts, Ts, null);
                         }
                         switch (toRenderer[b][a].id) {

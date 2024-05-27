@@ -6,8 +6,8 @@ public abstract class Entitee extends Objet {
 
     protected int max_hp;
     protected int hp;
-    protected int x;
-    protected int y;
+    protected int x; // pixel pas case de map
+    protected int y; // pixel pas case de map
 
 
     public Entitee() {

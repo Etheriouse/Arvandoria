@@ -46,7 +46,6 @@ public class Jeu extends JFrame {
 
     private int MarginTop = 0;
 
-
     private double fps = 0;
 
     private BufferedImage onscreenImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -64,8 +63,8 @@ public class Jeu extends JFrame {
     }
 
     private void setup() {
-        posCameraX = X*Ts/2;
-        posCameraY = Y*Ts/2;
+        posCameraX = X * Ts / 2;
+        posCameraY = Y * Ts / 2;
         Settings.setup();
         this.setTitle("game");
         this.setResizable(false);
@@ -119,13 +118,14 @@ public class Jeu extends JFrame {
             @Override
             public void mouseDragged(MouseEvent e) {
                 // TODO Auto-generated method stub
-                //throw new UnsupportedOperationException("Unimplemented method 'mouseDragged'");
+                // throw new UnsupportedOperationException("Unimplemented method
+                // 'mouseDragged'");
             }
 
             @Override
             public void mouseMoved(MouseEvent e) {
                 mouseX = e.getX();
-                mouseY = e.getY()-MarginTop;
+                mouseY = e.getY() - MarginTop;
             }
 
         });
@@ -135,32 +135,35 @@ public class Jeu extends JFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 mouseClicked = true;
-                // TODO Auto-generated method stub
-                //throw new UnsupportedOperationException("Unimplemented method 'mouseClicked'");
+                System.out.println("click");
             }
 
             @Override
             public void mousePressed(MouseEvent e) {
                 // TODO Auto-generated method stub
-                //throw new UnsupportedOperationException("Unimplemented method 'mousePressed'");
+                // throw new UnsupportedOperationException("Unimplemented method
+                // 'mousePressed'");
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
                 // TODO Auto-generated method stub
-                //throw new UnsupportedOperationException("Unimplemented method 'mouseReleased'");
+                // throw new UnsupportedOperationException("Unimplemented method
+                // 'mouseReleased'");
             }
 
             @Override
             public void mouseEntered(MouseEvent e) {
                 // TODO Auto-generated method stub
-                //throw new UnsupportedOperationException("Unimplemented method 'mouseEntered'");
+                // throw new UnsupportedOperationException("Unimplemented method
+                // 'mouseEntered'");
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
                 // TODO Auto-generated method stub
-                //throw new UnsupportedOperationException("Unimplemented method 'mouseExited'");
+                // throw new UnsupportedOperationException("Unimplemented method
+                // 'mouseExited'");
             }
 
         });
@@ -169,7 +172,7 @@ public class Jeu extends JFrame {
 
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
-                if(e.getWheelRotation() < 0 ) {
+                if (e.getWheelRotation() < 0) {
                     unzoom(e);
                 } else {
                     zoom(e);
@@ -185,40 +188,40 @@ public class Jeu extends JFrame {
     }
 
     public void zoom(MouseWheelEvent e) {
-        int xtemp = posCameraX/Ts;
-        int ytemp = posCameraY/Ts;
-         Ts-=5;
-        if(Ts < 2) {
+        int xtemp = posCameraX / Ts;
+        int ytemp = posCameraY / Ts;
+        Ts -= 5;
+        if (Ts < 2) {
             Ts = 2;
         }
-        //RAY LIB CONNARD !
-        posCameraX = xtemp*Ts;
-        posCameraY = ytemp*Ts;
+        // RAY LIB CONNARD !
+        posCameraX = xtemp * Ts;
+        posCameraY = ytemp * Ts;
     }
 
     public void unzoom(MouseWheelEvent e) {
-        int xtemp = posCameraX/Ts;
-        int ytemp = posCameraY/Ts;
-        Ts+=5;
-        if(Ts > 700) {
+        int xtemp = posCameraX / Ts;
+        int ytemp = posCameraY / Ts;
+        Ts += 5;
+        if (Ts > 700) {
             Ts = 700;
         }
-        posCameraX = xtemp*Ts;
-        posCameraY = ytemp*Ts;
+        posCameraX = xtemp * Ts;
+        posCameraY = ytemp * Ts;
     }
 
     public void checkColision(Hitbox b) {
-        int Xx = posCameraX-(width/2);
-        int Yy = posCameraY-(height/2);
-        System.out.println("player touched: " + b.isCollision(Xx+mouseX, Yy+mouseY, Ts));
+        int Xx = posCameraX - (width / 2);
+        int Yy = posCameraY - (height / 2);
+        System.out.println("player touched: " + b.isCollision(Xx + mouseX, Yy + mouseY, Ts));
     }
 
     public void run() {
         Monde carte = new Monde(this.X, this.Y, 0.4);
         setup();
 
-        Joueur player = new Joueur(20, 7, posCameraY/Ts, posCameraX/Ts);
-        carte.getEntitee()[posCameraY/Ts][posCameraX/Ts] = player;
+        Joueur player = new Joueur(20, 7, posCameraY, posCameraX);
+        carte.getEntitee()[posCameraY / Ts][posCameraX / Ts] = player;
 
         final double max_speed = 7.0f;
         final double acc = 1.0f;
@@ -231,7 +234,11 @@ public class Jeu extends JFrame {
         long start = System.currentTimeMillis();
         long lastdelta = System.currentTimeMillis();
 
-        boolean follow_mouse = false;
+        boolean firstclick = false;
+        boolean secondclick = false;
+
+        int actualXplayer = 0;
+        int actualYplayer = 0;
 
         while (inGame) {
 
@@ -240,63 +247,80 @@ public class Jeu extends JFrame {
 
             lastdelta = now;
 
-
-
-            if(mouseClicked) {
-                int Xx = posCameraX-(width/2);
-                int Yy = posCameraY-(height/2);
-                follow_mouse = player.geHitbox().isCollision(Xx+mouseX, Yy+mouseY, Ts);
-            }
-
-            if(follow_mouse) {
-
-                if(mouseClicked) {
-                    int Xx = posCameraX-(width/2)+mouseX;
-                    int Yy = posCameraY-(height/2)+mouseY;
-                    System.out.println("pre coord: " + player.getX() + ", " + player.getY());
-                    carte.setCaseEntitee(player, Xx/Ts, Yy/Ts);
-                    carte.setCaseEntitee(null, player.getX(), player.getY());
-                    player.setX(Xx/Ts);
-                    player.setY(Yy/Ts);
-                    System.out.println("post coord: " + player.getX() + ", " + player.getY());
+            if (mouseClicked && !firstclick) {
+                int tempx = posCameraX - (width / 2);
+                int tempy = posCameraY - (height / 2);
+                if (carte.getEntitee()[(tempy + mouseY) / Ts][(tempx + mouseX) / Ts] != null) {
+                    actualXplayer = tempx + mouseX;
+                    actualYplayer = tempy + mouseY;
+                    System.out.println("X: " + (tempx + mouseX) / Ts);
+                    System.out.println("Y: " + (tempy + mouseY) / Ts);
+                    firstclick = true;
+                    System.out.println("First Click");
+                    mouseClicked = false;
+                    System.out.println("number entity: " + carte.countEntite());
                 }
             }
-            mouseClicked = false;
 
-            if(System.currentTimeMillis()-cooldown.get("resetZoom") > 100) {
-                if(keysDown.contains(KeyEvent.VK_CONTROL) && keysDown.contains(KeyEvent.VK_F)) {
+            if (firstclick && mouseClicked) {
+                int tempx = posCameraX - (width / 2);
+                int tempy = posCameraY - (height / 2);
+                int newCoordX = tempx + mouseX;
+                int newCoordY = tempy + mouseY;
+                if(newCoordX != actualXplayer && newCoordY != actualYplayer) {
+                    System.out.println("X: " + (tempx + mouseX) / Ts);
+                    System.out.println("Y: " + (tempy + mouseY) / Ts);
+                    System.out.println("Second click");
+                    carte.setCaseEntitee(player, (newCoordX) / Ts, (newCoordY) / Ts);
+                    carte.setCaseEntitee(null, actualXplayer / Ts, actualYplayer / Ts);
+                    player.setX(tempx + mouseX);
+                    player.setY(tempy + mouseY);
+                    firstclick = false;
+                    secondclick = true;
+                    mouseClicked = false;
+                    actualXplayer = newCoordX;
+                    actualYplayer = newCoordY;
+                    System.out.println("number entity: " + carte.countEntite());
+                }
+            }
+
+            // System.out.println("Mouse if clicked: " + mouseClicked);
+            // System.out.println("First click: " + firstclick);
+            // System.out.println("Second click: " + secondclick);
+
+            if (System.currentTimeMillis() - cooldown.get("resetZoom") > 100) {
+                if (keysDown.contains(KeyEvent.VK_CONTROL) && keysDown.contains(KeyEvent.VK_F)) {
                     Ts = 50;
                     cooldown.put("resetZoom", System.currentTimeMillis());
                 }
             }
 
-
-            if(System.currentTimeMillis()-cooldown.get("ZoomIn") > 100) {
-                if(keysDown.contains(KeyEvent.VK_CONTROL) && keysDown.contains(KeyEvent.VK_ADD)) {
-                    int xtemp = posCameraX/Ts;
-                    int ytemp = posCameraY/Ts;
-                    Ts*=2;
-                    if(Ts > 700) {
+            if (System.currentTimeMillis() - cooldown.get("ZoomIn") > 100) {
+                if (keysDown.contains(KeyEvent.VK_CONTROL) && keysDown.contains(KeyEvent.VK_ADD)) {
+                    int xtemp = posCameraX / Ts;
+                    int ytemp = posCameraY / Ts;
+                    Ts *= 2;
+                    if (Ts > 700) {
                         Ts = 700;
                     }
                     cooldown.put("ZoomIn", System.currentTimeMillis());
-                    posCameraX = xtemp*Ts;
-                    posCameraY = ytemp*Ts;
+                    posCameraX = xtemp * Ts;
+                    posCameraY = ytemp * Ts;
                 }
             }
 
-            if(System.currentTimeMillis()-cooldown.get("ZoomOut") > 100) {
-                if(keysDown.contains(KeyEvent.VK_CONTROL) && keysDown.contains(KeyEvent.VK_SUBTRACT)) {
-                    int xtemp = posCameraX/Ts;
-                    int ytemp = posCameraY/Ts;
+            if (System.currentTimeMillis() - cooldown.get("ZoomOut") > 100) {
+                if (keysDown.contains(KeyEvent.VK_CONTROL) && keysDown.contains(KeyEvent.VK_SUBTRACT)) {
+                    int xtemp = posCameraX / Ts;
+                    int ytemp = posCameraY / Ts;
 
-                    Ts/=2;
-                    if(Ts < 10) {
+                    Ts /= 2;
+                    if (Ts < 10) {
                         Ts = 10;
                     }
                     cooldown.put("ZoomOut", System.currentTimeMillis());
-                    posCameraX = xtemp*Ts;
-                    posCameraY = ytemp*Ts;
+                    posCameraX = xtemp * Ts;
+                    posCameraY = ytemp * Ts;
                 }
             }
 
@@ -353,29 +377,30 @@ public class Jeu extends JFrame {
             // System.out.println("delta: " + delta + " velocity: " + playervelocityX + "
             // pos: " + posCameraX);
 
-            if (posCameraX < width/2) {
-                posCameraX = width/2;
+            if (posCameraX < width / 2) {
+                posCameraX = width / 2;
             }
 
-            if (posCameraY < height/2) {
-                posCameraY = height/2;
+            if (posCameraY < height / 2) {
+                posCameraY = height / 2;
             }
 
-            if (posCameraX+(width/2) > ((X) * Ts)) {
-                posCameraX = (X*Ts)-(width/2);
+            if (posCameraX + (width / 2) > ((X) * Ts)) {
+                posCameraX = (X * Ts) - (width / 2);
             }
 
             // System.out.println((Y * 50) - 550);
-            if (posCameraY+(height/2) > (Y * Ts)) {
-                posCameraY = (Y * Ts) - (height/2);
+            if (posCameraY + (height / 2) > (Y * Ts)) {
+                posCameraY = (Y * Ts) - (height / 2);
             }
 
             // System.out.print("x: " + posCameraX + " y: " + posCameraY);
             // System.out.println();
-            if(mouseClicked) {
+            if (mouseClicked) {
                 System.out.println("X: " + mouseX + " Y: " + mouseY);
-                System.out.println("a: " + mouseX/Ts + " b: " + mouseY / Ts);
-                System.out.println("id texture: " + carte.getFloor()[mouseY/Ts][mouseX/Ts].id);
+                System.out.println("a: " + mouseX / Ts + " b: " + mouseY / Ts);
+                System.out.println("id texture: " + carte.getFloor()[mouseY / Ts][mouseX / Ts].id);
+                mouseClicked = false;
             }
             render(carte);
             frame++;
@@ -385,7 +410,7 @@ public class Jeu extends JFrame {
                 start = System.currentTimeMillis();
                 fps = frame;
                 frame = 0;
-                clear();
+                // clear();
                 System.out.println(Ts);
                 System.out.println(" fps: " + fps);
             }
@@ -415,7 +440,7 @@ public class Jeu extends JFrame {
         offscreen.drawString("fps " + fps, 2, 20);
         offscreen.setColor(Color.RED);
         offscreen.setFont(new Font("Arial", Font.PLAIN, 50));
-        offscreen.drawString(".", width/2, height/2);
+        offscreen.drawString(".", width / 2, height / 2);
         offscreen.setColor(Color.BLACK);
 
         rafraichir();
