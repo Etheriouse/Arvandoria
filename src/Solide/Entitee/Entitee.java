@@ -6,8 +6,7 @@ public abstract class Entitee extends Objet {
 
     protected int max_hp;
     protected int hp;
-    protected int x; // pixel pas case de map
-    protected int y; // pixel pas case de map
+    protected String name;
 
 
     public Entitee() {
@@ -27,12 +26,11 @@ public abstract class Entitee extends Objet {
         this.hp = maxhp;
     }
 
-    public Entitee(int maxhp, int id, int x, int y) {
+    public Entitee(int maxhp, int id, String name) {
         super(id);
-        this.x = x;
-        this.y = y;
         this.max_hp = maxhp;
         this.hp = maxhp;
+        this.name = name;
     }
 
 
@@ -52,20 +50,8 @@ public abstract class Entitee extends Objet {
         this.hp = hp;
     }
 
-    public int getX() {
-        return x;
+    @Override
+    public String toString() {
+        return super.toString() + " " + name + " hp: " + hp+"/"+max_hp;
     }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
 }

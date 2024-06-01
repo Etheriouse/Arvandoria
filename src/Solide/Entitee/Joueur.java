@@ -8,14 +8,10 @@ public class Joueur extends Entitee {
 
     public Joueur(int maxhp, int id) {
         super(maxhp, id);
-        this.x = 0; // case de map
-        this.y = 0; // case de map
-        this.hitbox = new Hitbox(x, y);
     }
 
-    public Joueur(int maxhp, int id, int x, int y) {
-        super(maxhp, id, x, y);
-        this.hitbox = new Hitbox(x, y);
+    public Joueur(int maxhp, int id, String name) {
+        super(maxhp, id, name);
     }
 
     public Hitbox geHitbox() {

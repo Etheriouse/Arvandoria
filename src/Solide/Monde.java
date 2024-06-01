@@ -190,47 +190,17 @@ public class Monde implements Graph {
         this.objet = objet;
     }
 
-    private void renderEntity(int Ts, int posCameraX, int posCameraY, int width, int height, Graphics2D offscreen) {
-        int x, y, Ex, Ey;
-
-        int X = posCameraX - (width / 2);
-        int Y = posCameraY - (height / 2);
-
-
-        for (int i = 0; i < this.entitee.length; i++) {
-            for (int j = 0; j < this.entitee[i].length; j++) {
-                if (this.entitee[i][j] != null) {
-
-                    x = this.entitee[i][j].getX();
-                    y = this.entitee[i][j].getY();
-
-                    Ex = x - X;
-                    Ey = y - Y;
-
-                    //if (!(Ex < -Ts)) {
-                        //System.out.println("outside x");
-                        //if (!(Ey < -Ts)) {
-                            //System.out.println("outside x");
-                            System.out.println("Entity is at: " + Ex + " " + Ey);
-                            System.out.println(posCameraX + " " + X);
-                            offscreen.drawImage(Settings.Textures.get("Joueur"), Ex, Ey, Ts, Ts, null);
-                        //}
-                    //}
-                }
-            }
+    public boolean switchEntitee(int x, int y, int x1, int y1) {
+        if(this.entitee[y1][x1] != null) {
+            return false;
+        } else if(this.entitee[y][x] == null) {
+            return false;
+        } else {
+            Entitee temporaire = this.entitee[y1][x1];
+            this.entitee[y1][x1] = this.entitee[y][x];
+            this.entitee[y][x] = temporaire;
+            return true;
         }
-    }
-
-    public int countEntite() {
-        int sum = 0;
-        for (Entitee[] entitees : entitee) {
-            for (Entitee entitee : entitees) {
-                if(entitee != null) {
-                    sum++;
-                }
-            }
-        }
-        return sum;
     }
 
     @Override
@@ -245,7 +215,7 @@ public class Monde implements Graph {
 
         rendere(TypeFlat.Floor, Ex, Ey, (-Ex + (width)), (-Ey + (height)), X, Y, Ts, offscreen);
         rendere(TypeFlat.Objet, Ex, Ey, (-Ex + (width)), (-Ey + (height)), X, Y, Ts, offscreen);
-        renderEntity(Ts, posCameraX, posCameraY, width, height, offscreen);
+        rendere(TypeFlat.Entitee, Ex, Ey, (-Ex + (width)), (-Ey + (height)), X, Y, Ts, offscreen);
     }
 
     private void rendere(TypeFlat type, int Sx, int Sy, int Ex, int Ey, int X, int Y, int Ts, Graphics2D offscreen) {
@@ -259,6 +229,10 @@ public class Monde implements Graph {
 
             case TypeFlat.Objet:
                 toRenderer = this.objet;
+                break;
+
+            case TypeFlat.Entitee:
+                toRenderer = this.entitee;
                 break;
 
             default:
@@ -295,6 +269,15 @@ public class Monde implements Graph {
                                 break;
                             case 7:
                                 offscreen.drawImage(Settings.Textures.get("Joueur"), x, y, Ts, Ts, null);
+                                break;
+                            case 8:
+                                offscreen.drawImage(Settings.Textures.get("Chevalier"), x, y, Ts, Ts, null);
+                                break;
+                            case 9:
+                                offscreen.drawImage(Settings.Textures.get("Archer"), x, y, Ts, Ts, null);
+                                break;
+                            case 10:
+                                offscreen.drawImage(Settings.Textures.get("Catapulte"), x, y, Ts, Ts, null);
                                 break;
                             default:
                                 offscreen.drawImage(Settings.Textures.get("Error"), x, y, Ts, Ts, null);

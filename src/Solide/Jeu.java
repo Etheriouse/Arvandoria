@@ -63,8 +63,8 @@ public class Jeu extends JFrame {
     }
 
     private void setup() {
-        posCameraX = X * Ts / 2;
-        posCameraY = Y * Ts / 2;
+        posCameraX = 40;
+        posCameraY = 40;
         Settings.setup();
         this.setTitle("game");
         this.setResizable(false);
@@ -220,8 +220,14 @@ public class Jeu extends JFrame {
         Monde carte = new Monde(this.X, this.Y, 0.4);
         setup();
 
-        Joueur player = new Joueur(20, 7, posCameraY, posCameraX);
-        carte.getEntitee()[posCameraY / Ts][posCameraX / Ts] = player;
+        Joueur player = new Joueur(20, 7, "player");
+        Joueur knight = new Joueur(20, 8, "knight");
+        Joueur archer = new Joueur(20, 9, "archer");
+        Joueur catapult = new Joueur(20, 10, "catapult");
+        carte.getEntitee()[5][9] = player;
+        carte.getEntitee()[6][12] = knight;
+        carte.getEntitee()[9][1] = archer;
+        carte.getEntitee()[13][5] = catapult;
 
         final double max_speed = 7.0f;
         final double acc = 1.0f;
@@ -248,39 +254,36 @@ public class Jeu extends JFrame {
             lastdelta = now;
 
             if (mouseClicked && !firstclick) {
-                int tempx = posCameraX - (width / 2);
-                int tempy = posCameraY - (height / 2);
-                if (carte.getEntitee()[(tempy + mouseY) / Ts][(tempx + mouseX) / Ts] != null) {
-                    actualXplayer = tempx + mouseX;
-                    actualYplayer = tempy + mouseY;
-                    System.out.println("X: " + (tempx + mouseX) / Ts);
-                    System.out.println("Y: " + (tempy + mouseY) / Ts);
+                int tempx = ((posCameraX - (width / 2)) + mouseX)/Ts;
+                int tempy = ((posCameraY - (height / 2)) + mouseY)/Ts;
+                if (carte.getEntitee()[tempy][tempx] != null) {
+                    actualXplayer = tempx;
+                    actualYplayer = tempy;
+                    System.out.println("X: " + tempx);
+                    System.out.println("Y: " + tempy);
                     firstclick = true;
                     System.out.println("First Click");
                     mouseClicked = false;
-                    System.out.println("number entity: " + carte.countEntite());
                 }
             }
 
             if (firstclick && mouseClicked) {
-                int tempx = posCameraX - (width / 2);
-                int tempy = posCameraY - (height / 2);
-                int newCoordX = tempx + mouseX;
-                int newCoordY = tempy + mouseY;
-                if(newCoordX != actualXplayer && newCoordY != actualYplayer) {
-                    System.out.println("X: " + (tempx + mouseX) / Ts);
-                    System.out.println("Y: " + (tempy + mouseY) / Ts);
+                int newCoordX = ((posCameraX - (width / 2)) + mouseX)/Ts;
+                int newCoordY = ((posCameraY - (height / 2)) + mouseY)/Ts;
+
+                System.out.println("actual: " + actualXplayer + ", " + actualYplayer);
+                System.out.println("next: " + newCoordX + ", " + newCoordY + " | " + ((posCameraX - (width / 2)) + mouseX) + ", " +((posCameraY - (height / 2)) + mouseY));
+
+                if(newCoordX != actualXplayer || newCoordY != actualYplayer) {
+                    System.out.println("X: " + newCoordX);
+                    System.out.println("Y: " + newCoordY);
                     System.out.println("Second click");
-                    carte.setCaseEntitee(player, (newCoordX) / Ts, (newCoordY) / Ts);
-                    carte.setCaseEntitee(null, actualXplayer / Ts, actualYplayer / Ts);
-                    player.setX(tempx + mouseX);
-                    player.setY(tempy + mouseY);
+                    carte.switchEntitee(actualXplayer, actualYplayer, newCoordX, newCoordY);
                     firstclick = false;
                     secondclick = true;
                     mouseClicked = false;
                     actualXplayer = newCoordX;
                     actualYplayer = newCoordY;
-                    System.out.println("number entity: " + carte.countEntite());
                 }
             }
 
@@ -396,12 +399,12 @@ public class Jeu extends JFrame {
 
             // System.out.print("x: " + posCameraX + " y: " + posCameraY);
             // System.out.println();
-            if (mouseClicked) {
-                System.out.println("X: " + mouseX + " Y: " + mouseY);
-                System.out.println("a: " + mouseX / Ts + " b: " + mouseY / Ts);
-                System.out.println("id texture: " + carte.getFloor()[mouseY / Ts][mouseX / Ts].id);
+            //if (mouseClicked) {
+                //System.out.println("X: " + mouseX + " Y: " + mouseY);
+                //System.out.println("a: " + mouseX / Ts + " b: " + mouseY / Ts);
+                //System.out.println("id texture: " + carte.getFloor()[mouseY / Ts][mouseX / Ts].id);
                 mouseClicked = false;
-            }
+            //}
             render(carte);
             frame++;
 
@@ -411,8 +414,9 @@ public class Jeu extends JFrame {
                 fps = frame;
                 frame = 0;
                 // clear();
-                System.out.println(Ts);
-                System.out.println(" fps: " + fps);
+                //System.out.println(Ts);
+                //System.out.println(" fps: " + fps);
+                System.out.println("first click: " + firstclick);
             }
             // System.out.println(playervelocity);
 

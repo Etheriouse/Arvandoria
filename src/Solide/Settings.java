@@ -21,7 +21,10 @@ public class Settings {
     private static Image sable = Jeu.getImage("assets/sand.png");
     private static Image foret =Jeu.getImage("assets/tree.png");
 
-    private static Image joueur =Jeu.getImage("assets/cursor.png");
+    private static Image joueur =Jeu.getImage("assets/player.png");
+    private static Image chevalier =Jeu.getImage("assets/knight.png");
+    private static Image archer =Jeu.getImage("assets/archer.png");
+    private static Image catapulte =Jeu.getImage("assets/catapult.png");
 
 
     static final TreeMap<String, Image> Textures = new TreeMap<>();
@@ -41,6 +44,9 @@ public class Settings {
         Textures.put("Error", error);
         Textures.put("None", none);
         Textures.put("Joueur", joueur);
+        Textures.put("Chevalier", chevalier);
+        Textures.put("Archer", archer);
+        Textures.put("Catapulte", catapulte);
     }
 
     public static void CalculePlusPetitDiviseurCommun(int a, int b, int echantillons) {
