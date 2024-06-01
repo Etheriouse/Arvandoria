@@ -134,22 +134,20 @@ public class Jeu extends JFrame {
 
             @Override
             public void mouseClicked(MouseEvent e) {
+                // mouseClicked = true;
+                // System.out.println("click");
+                // ne jamais utiliser sa sa marche une fois sur 3 c de la daube
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
                 mouseClicked = true;
                 System.out.println("click");
             }
 
             @Override
-            public void mousePressed(MouseEvent e) {
-                // TODO Auto-generated method stub
-                // throw new UnsupportedOperationException("Unimplemented method
-                // 'mousePressed'");
-            }
-
-            @Override
             public void mouseReleased(MouseEvent e) {
-                // TODO Auto-generated method stub
-                // throw new UnsupportedOperationException("Unimplemented method
-                // 'mouseReleased'");
+                mouseClicked = false;
             }
 
             @Override
@@ -241,10 +239,9 @@ public class Jeu extends JFrame {
         long lastdelta = System.currentTimeMillis();
 
         boolean firstclick = false;
-        boolean secondclick = false;
 
-        int actualXplayer = 0;
-        int actualYplayer = 0;
+        int positionActuelEntiteeSelectX = 0;
+        int positionActuelEntiteeSelectY = 0;
 
         while (inGame) {
 
@@ -257,13 +254,12 @@ public class Jeu extends JFrame {
                 int tempx = ((posCameraX - (width / 2)) + mouseX)/Ts;
                 int tempy = ((posCameraY - (height / 2)) + mouseY)/Ts;
                 if (carte.getEntitee()[tempy][tempx] != null) {
-                    actualXplayer = tempx;
-                    actualYplayer = tempy;
-                    System.out.println("X: " + tempx);
-                    System.out.println("Y: " + tempy);
+                    positionActuelEntiteeSelectX = tempx;
+                    positionActuelEntiteeSelectY = tempy;
                     firstclick = true;
-                    System.out.println("First Click");
                     mouseClicked = false;
+                    carte.setSelecteurX(positionActuelEntiteeSelectX);
+                    carte.setSelecteurY(positionActuelEntiteeSelectY);
                 }
             }
 
@@ -271,21 +267,25 @@ public class Jeu extends JFrame {
                 int newCoordX = ((posCameraX - (width / 2)) + mouseX)/Ts;
                 int newCoordY = ((posCameraY - (height / 2)) + mouseY)/Ts;
 
-                System.out.println("actual: " + actualXplayer + ", " + actualYplayer);
-                System.out.println("next: " + newCoordX + ", " + newCoordY + " | " + ((posCameraX - (width / 2)) + mouseX) + ", " +((posCameraY - (height / 2)) + mouseY));
-
-                if(newCoordX != actualXplayer || newCoordY != actualYplayer) {
-                    System.out.println("X: " + newCoordX);
-                    System.out.println("Y: " + newCoordY);
-                    System.out.println("Second click");
-                    carte.switchEntitee(actualXplayer, actualYplayer, newCoordX, newCoordY);
+                if(newCoordX != positionActuelEntiteeSelectX || newCoordY != positionActuelEntiteeSelectY) {
+                    carte.switchEntitee(positionActuelEntiteeSelectX, positionActuelEntiteeSelectY, newCoordX, newCoordY);
                     firstclick = false;
-                    secondclick = true;
                     mouseClicked = false;
-                    actualXplayer = newCoordX;
-                    actualYplayer = newCoordY;
+                    positionActuelEntiteeSelectX = newCoordX;
+                    positionActuelEntiteeSelectY = newCoordY;
+                    carte.setSelecteurX(-1);
+                    carte.setSelecteurY(-1);
+                } else {
+                    carte.setSelecteurX(-1);
+                    carte.setSelecteurY(-1);
+                    firstclick = false;
+                    mouseClicked = false;
                 }
             }
+
+            // if(mouseClicked) {
+            //     mouseClicked = false;
+            // }
 
             // System.out.println("Mouse if clicked: " + mouseClicked);
             // System.out.println("First click: " + firstclick);
@@ -403,8 +403,8 @@ public class Jeu extends JFrame {
                 //System.out.println("X: " + mouseX + " Y: " + mouseY);
                 //System.out.println("a: " + mouseX / Ts + " b: " + mouseY / Ts);
                 //System.out.println("id texture: " + carte.getFloor()[mouseY / Ts][mouseX / Ts].id);
-                mouseClicked = false;
-            //}
+            //    mouseClicked = false;
+           ///}
             render(carte);
             frame++;
 

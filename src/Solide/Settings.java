@@ -26,6 +26,8 @@ public class Settings {
     private static Image archer =Jeu.getImage("assets/archer.png");
     private static Image catapulte =Jeu.getImage("assets/catapult.png");
 
+    private static Image selecteur =Jeu.getImage("assets/selecteur.png");
+
 
     static final TreeMap<String, Image> Textures = new TreeMap<>();
 
@@ -47,6 +49,7 @@ public class Settings {
         Textures.put("Chevalier", chevalier);
         Textures.put("Archer", archer);
         Textures.put("Catapulte", catapulte);
+        Textures.put("Selecteur", selecteur);
     }
 
     public static void CalculePlusPetitDiviseurCommun(int a, int b, int echantillons) {

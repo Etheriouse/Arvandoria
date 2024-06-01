@@ -26,6 +26,9 @@ public class Monde implements Graph {
     private Objet[][] objet;
     private Bloc[][] floor;
 
+    private int selecteurX = -1;
+    private int selecteurY = -1;
+
     public Monde() {
         this.objet = new Objet[10][10];
         this.floor = new Bloc[10][10];
@@ -190,6 +193,23 @@ public class Monde implements Graph {
         this.objet = objet;
     }
 
+
+    public void setSelecteurY(int y) {
+        this.selecteurY = y;
+    }
+
+    public int getSelecteurY() {
+        return this.selecteurY;
+    }
+
+    public void setSelecteurX(int x) {
+        this.selecteurX = x;
+    }
+
+    public int getSelecteurX() {
+        return this.selecteurX;
+    }
+
     public boolean switchEntitee(int x, int y, int x1, int y1) {
         if(this.entitee[y1][x1] != null) {
             return false;
@@ -282,6 +302,11 @@ public class Monde implements Graph {
                             default:
                                 offscreen.drawImage(Settings.Textures.get("Error"), x, y, Ts, Ts, null);
                                 break;
+                        }
+                        if(TypeFlat.Entitee == type) {
+                            if(selecteurX == a && this.selecteurY == b) {
+                                offscreen.drawImage(Settings.Textures.get("Selecteur"), x, y, Ts, Ts, null);
+                            }
                         }
                     }
                 }
