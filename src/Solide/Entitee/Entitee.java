@@ -1,13 +1,16 @@
 package Solide.Entitee;
 
+import Solide.Bloc;
+import Solide.Civilisation;
 import Solide.Objet;
+import Solide.Settings;
 
 public abstract class Entitee extends Objet {
 
     protected int max_hp;
     protected int hp;
     protected String name;
-
+    protected Civilisation civ;
 
     public Entitee() {
         super();
@@ -33,6 +36,21 @@ public abstract class Entitee extends Objet {
         this.name = name;
     }
 
+    public Entitee(int maxhp, int id, String name, Civilisation civ) {
+        super(id);
+        this.max_hp = maxhp;
+        this.hp = maxhp;
+        this.name = name;
+        this.civ = civ;
+    }
+
+    public Civilisation getCvCivilisation() {
+        return this.civ;
+    }
+
+    public boolean canMoveOnThisBlock(Bloc b) {
+        return b.id != Settings.WATER_ID;
+    }
 
     public int getMax_hp() {
         return max_hp;

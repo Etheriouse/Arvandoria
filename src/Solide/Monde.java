@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import Solide.Entitee.Entitee;
+import Solide.Entitee.Unite;
 
 public class Monde implements Graph {
 
@@ -223,6 +224,32 @@ public class Monde implements Graph {
         }
     }
 
+    public void renderPossibleMove(int a, int b, int X, int Y, int Ts, Graphics2D offscreen) {
+        if(selecteurX != -1 && selecteurY != -1) {
+            int x = selecteurX;
+            int y = selecteurY;
+            Unite selected = (Unite) this.entitee[selecteurY][selecteurX];
+            if(selected.getMov() >= Math.abs(a-x) + Math.abs(b-y)) {
+                if(this.entitee[b][a] == null) {
+                    if(this.entitee[y][x].canMoveOnThisBlock(this.floor[b][a])) {
+                        offscreen.drawImage(Jeu.getImage("assets/possibleMovementTrue.png"), X, Y, Ts, Ts, null);
+                    }
+                }
+            }
+        }
+    }
+
+    public boolean VerifyMove(int a, int b) {
+        if(selecteurX != -1 && selecteurY != -1) {
+            int x = selecteurX;
+            int y = selecteurY;
+            Unite selected = (Unite) this.entitee[selecteurY][selecteurX];
+            return selected.getMov() >= Math.abs(a-x) + Math.abs(b-y) && this.entitee[y][x].canMoveOnThisBlock(this.floor[b][a]);
+        } else {
+            return false;
+        }
+    }
+
     @Override
     public void rendere(int Ts, int posCameraX, int posCameraY, int width, int height, Graphics2D offscreen) {
         int X = posCameraX - (width / 2);
@@ -237,6 +264,32 @@ public class Monde implements Graph {
         rendere(TypeFlat.Objet, Ex, Ey, (-Ex + (width)), (-Ey + (height)), X, Y, Ts, offscreen);
         rendere(TypeFlat.Entitee, Ex, Ey, (-Ex + (width)), (-Ey + (height)), X, Y, Ts, offscreen);
     }
+
+    /*
+    *   posCamerax est en pixel pas en TS
+        public void rendere(int Ts, int posCameraX, int posCameraY, int width, int height, Graphics2D offscreen) {
+            int X = posCameraX - (width / 2);
+            int Tx = X / Ts;
+            int Ex = -(X - (Tx * Ts));
+
+            int Y = posCameraY - (height / 2);
+            int Ty = Y / Ts;
+            int Ey = -(Y - (Ty * Ts));
+            rendere(TypeFlat.Floor, Ex, Ey, (-Ex + (width)), (-Ey + (height)), X, Y, Ts, offscreen);
+        }
+
+        private void rendere(TypeFlat type, int Sx, int Sy, int Ex, int Ey, int X, int Y, int Ts, Graphics2D offscreen) {
+            for (int y = Sy, b = Y / Ts; y < Ey; b += 1, y += Ts) {
+                for (int x = Sx, a = X / Ts; x < Ex; a += 1, x += Ts) {
+                    if (b < toRenderer.length && a < toRenderer[b].length) {
+                        if (toRenderer[b][a] != null) {
+                            offscreen.drawImage(Settings.Textures.get("Herbe"), x, y, Ts, Ts, null);
+                        }
+                    }
+                }
+            }
+        }
+                            */
 
     private void rendere(TypeFlat type, int Sx, int Sy, int Ex, int Ey, int X, int Y, int Ts, Graphics2D offscreen) {
 
@@ -265,6 +318,11 @@ public class Monde implements Graph {
 
                 if (b < toRenderer.length && a < toRenderer[b].length) {
                     if (toRenderer[b][a] != null) {
+                        if(TypeFlat.Entitee == type) {
+                            if(Jeu.mouseX/Ts == a && Jeu.mouseY/Ts == b) {
+
+                            }
+                        }
                         if (TypeFlat.Floor == type) {
                             offscreen.drawImage(Settings.Textures.get("Herbe"), x, y, Ts, Ts, null);
                         }
@@ -308,6 +366,9 @@ public class Monde implements Graph {
                                 offscreen.drawImage(Settings.Textures.get("Selecteur"), x, y, Ts, Ts, null);
                             }
                         }
+                    }
+                    if(TypeFlat.Entitee == type) {
+                        renderPossibleMove(a, b, x, y, Ts, offscreen);
                     }
                 }
             }

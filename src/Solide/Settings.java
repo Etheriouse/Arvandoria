@@ -6,6 +6,8 @@ import java.util.TreeMap;
 
 public class Settings {
 
+    public static final int WATER_ID = 0;
+
     private static Image mur =Jeu.getImage("assets/mur.png");
     private static Image rocher =Jeu.getImage("assets/rocher.png");
     private static Image ville =Jeu.getImage("assets/ville.png");
@@ -26,7 +28,11 @@ public class Settings {
     private static Image archer =Jeu.getImage("assets/archer.png");
     private static Image catapulte =Jeu.getImage("assets/catapult.png");
 
-    private static Image selecteur =Jeu.getImage("assets/selecteur.png");
+    private static Image selecteur = Jeu.getImage("assets/selecteur.png");
+    private static Image possibleMovement = Jeu.getImage("assets/possibleMovement.png");
+
+    private static Image cursor = Jeu.getImage("asstes/cursor.png");
+    private static Image cursor_clicked = Jeu.getImage("asstes/cursor_clicked.png");
 
 
     static final TreeMap<String, Image> Textures = new TreeMap<>();
@@ -50,6 +56,9 @@ public class Settings {
         Textures.put("Archer", archer);
         Textures.put("Catapulte", catapulte);
         Textures.put("Selecteur", selecteur);
+        Textures.put("Cursor", cursor);
+        Textures.put("Cursor_clicked", cursor_clicked);
+        Textures.put("PossibleMove", possibleMovement);
     }
 
     public static void CalculePlusPetitDiviseurCommun(int a, int b, int echantillons) {

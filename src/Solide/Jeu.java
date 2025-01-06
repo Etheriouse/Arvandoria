@@ -7,7 +7,7 @@ import java.awt.Image;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-import Solide.Entitee.Joueur;
+import Solide.Entitee.Unite;
 
 import java.awt.Toolkit;
 import java.awt.Point;
@@ -33,9 +33,15 @@ public class Jeu extends JFrame {
     private int width = 1600;
     private int height = 900;
 
-    private int mouseX = 0;
-    private int mouseY = 0;
-    private boolean mouseClicked = false;
+    public static int mouseX = 0;
+    public static int mouseY = 0;
+    private boolean mouseLeftClicked = false;
+    private boolean mouseRightClicked = false;
+    private boolean mouseMiddleClicked = false;
+
+    private boolean mouseDraggedLeft = false;
+
+    private boolean mouseInMovement = false;
 
     private TreeMap<String, Long> cooldown = new TreeMap<>();
 
@@ -117,37 +123,67 @@ public class Jeu extends JFrame {
 
             @Override
             public void mouseDragged(MouseEvent e) {
-                // TODO Auto-generated method stub
-                // throw new UnsupportedOperationException("Unimplemented method
-                // 'mouseDragged'");
+                // System.out.println(e);
+                // System.out.println(e);
+                mouseDraggedLeft = true;
             }
 
             @Override
             public void mouseMoved(MouseEvent e) {
                 mouseX = e.getX();
                 mouseY = e.getY() - MarginTop;
+                mouseInMovement = true;
             }
 
         });
 
         this.addMouseListener(new MouseListener() {
 
+            // ne jamais utiliser sa sa marche une fois sur 3 c de la daube
             @Override
             public void mouseClicked(MouseEvent e) {
-                // mouseClicked = true;
-                // System.out.println("click");
-                // ne jamais utiliser sa sa marche une fois sur 3 c de la daube
             }
 
             @Override
             public void mousePressed(MouseEvent e) {
-                mouseClicked = true;
-                System.out.println("click");
+                changeCursor(true);
+                switch (e.getButton()) {
+                    case 1:
+                        mouseLeftClicked = true;
+                        break;
+
+                    case 2:
+                        mouseMiddleClicked = true;
+                        break;
+
+                    case 3:
+                        mouseRightClicked = true;
+                        break;
+
+                    default:
+                        break;
+                }
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                mouseClicked = false;
+                changeCursor(false);
+                switch (e.getButton()) {
+                    case 1:
+                        mouseLeftClicked = false;
+                        break;
+
+                    case 2:
+                        mouseMiddleClicked = false;
+                        break;
+
+                    case 3:
+                        mouseRightClicked = false;
+                        break;
+
+                    default:
+                        break;
+                }
             }
 
             @Override
@@ -185,6 +221,18 @@ public class Jeu extends JFrame {
         cooldown.put("resetZoom", 0L);
     }
 
+    private void changeCursor(boolean clicked) {
+        if (clicked) {
+            Cursor gauntletCursor = Toolkit.getDefaultToolkit().createCustomCursor(
+                    Jeu.getImage("assets/cursor_clicked.png"), new Point(0, 0), "gauntlet cursor");
+            this.setCursor(gauntletCursor);
+        } else {
+            Cursor gauntletCursor = Toolkit.getDefaultToolkit().createCustomCursor(
+                    Jeu.getImage("assets/cursor.png"), new Point(0, 0), "gauntlet cursor");
+            this.setCursor(gauntletCursor);
+        }
+    }
+
     public void zoom(MouseWheelEvent e) {
         int xtemp = posCameraX / Ts;
         int ytemp = posCameraY / Ts;
@@ -218,11 +266,11 @@ public class Jeu extends JFrame {
         Monde carte = new Monde(this.X, this.Y, 0.4);
         setup();
 
-        Joueur player = new Joueur(20, 7, "player");
-        Joueur knight = new Joueur(20, 8, "knight");
-        Joueur archer = new Joueur(20, 9, "archer");
-        Joueur catapult = new Joueur(20, 10, "catapult");
-        carte.getEntitee()[5][9] = player;
+        Unite rider = new Unite(15, 7, "rider", 8, 4, 9);
+        Unite knight = new Unite(10, 8, "knight", 7, 3, 5);
+        Unite archer = new Unite(8, 9, "archer", 7, 2, 7);
+        Unite catapult = new Unite(8, 10, "catapult", 10, 4, 3);
+        carte.getEntitee()[5][9] = rider;
         carte.getEntitee()[6][12] = knight;
         carte.getEntitee()[9][1] = archer;
         carte.getEntitee()[13][5] = catapult;
@@ -243,6 +291,11 @@ public class Jeu extends JFrame {
         int positionActuelEntiteeSelectX = 0;
         int positionActuelEntiteeSelectY = 0;
 
+        int draggedX = 0;
+        int draggedY = 0;
+
+        boolean moveEntity = false;
+
         while (inGame) {
 
             long now = System.currentTimeMillis();
@@ -250,46 +303,75 @@ public class Jeu extends JFrame {
 
             lastdelta = now;
 
-            if (mouseClicked && !firstclick) {
-                int tempx = ((posCameraX - (width / 2)) + mouseX)/Ts;
-                int tempy = ((posCameraY - (height / 2)) + mouseY)/Ts;
+            // Dragged entity
+
+            // if(!mouseLeftClicked && firstclick) {
+            // int newCoordX = ((posCameraX - (width / 2)) + mouseX)/Ts;
+            // int newCoordY = ((posCameraY - (height / 2)) + mouseY)/Ts;
+
+            // if(newCoordX != positionActuelEntiteeSelectX || newCoordY !=
+            // positionActuelEntiteeSelectY) {
+            // carte.switchEntitee(positionActuelEntiteeSelectX,
+            // positionActuelEntiteeSelectY, newCoordX, newCoordY);
+            // firstclick = false;
+            // mouseLeftClicked = false;
+            // positionActuelEntiteeSelectX = newCoordX;
+            // positionActuelEntiteeSelectY = newCoordY;
+            // carte.setSelecteurX(-1);
+            // carte.setSelecteurY(-1);
+            // } else {
+            // mouseLeftClicked = false;
+            // }
+            // }
+
+            // Move entity with mouse click
+
+            if (mouseLeftClicked && !firstclick) {
+                int tempx = ((posCameraX - (width / 2)) + mouseX) / Ts;
+                int tempy = ((posCameraY - (height / 2)) + mouseY) / Ts;
                 if (carte.getEntitee()[tempy][tempx] != null) {
                     positionActuelEntiteeSelectX = tempx;
                     positionActuelEntiteeSelectY = tempy;
                     firstclick = true;
-                    mouseClicked = false;
+                    mouseLeftClicked = false;
                     carte.setSelecteurX(positionActuelEntiteeSelectX);
                     carte.setSelecteurY(positionActuelEntiteeSelectY);
+                    moveEntity = true;
                 }
             }
 
-            if (firstclick && mouseClicked) {
-                int newCoordX = ((posCameraX - (width / 2)) + mouseX)/Ts;
-                int newCoordY = ((posCameraY - (height / 2)) + mouseY)/Ts;
+            if (firstclick && mouseLeftClicked) {
+                int newCoordX = ((posCameraX - (width / 2)) + mouseX) / Ts;
+                int newCoordY = ((posCameraY - (height / 2)) + mouseY) / Ts;
 
-                if(newCoordX != positionActuelEntiteeSelectX || newCoordY != positionActuelEntiteeSelectY) {
-                    carte.switchEntitee(positionActuelEntiteeSelectX, positionActuelEntiteeSelectY, newCoordX, newCoordY);
-                    firstclick = false;
-                    mouseClicked = false;
-                    positionActuelEntiteeSelectX = newCoordX;
-                    positionActuelEntiteeSelectY = newCoordY;
-                    carte.setSelecteurX(-1);
-                    carte.setSelecteurY(-1);
+                if (newCoordX != positionActuelEntiteeSelectX || newCoordY != positionActuelEntiteeSelectY) {
+                    if (carte.VerifyMove(newCoordX, newCoordY)) {
+                        carte.switchEntitee(positionActuelEntiteeSelectX, positionActuelEntiteeSelectY, newCoordX,
+                                newCoordY);
+                        firstclick = false;
+                        mouseLeftClicked = false;
+                        positionActuelEntiteeSelectX = newCoordX;
+                        positionActuelEntiteeSelectY = newCoordY;
+                        carte.setSelecteurX(-1);
+                        carte.setSelecteurY(-1);
+                    } else {
+                        carte.setSelecteurX(-1);
+                        carte.setSelecteurY(-1);
+                        mouseLeftClicked = false;
+                        firstclick = false;
+                    }
                 } else {
                     carte.setSelecteurX(-1);
                     carte.setSelecteurY(-1);
+                    mouseLeftClicked = false;
                     firstclick = false;
-                    mouseClicked = false;
                 }
             }
 
-            // if(mouseClicked) {
-            //     mouseClicked = false;
-            // }
+            System.out.println(posCameraX);
+            System.out.println(posCameraY);
 
-            // System.out.println("Mouse if clicked: " + mouseClicked);
-            // System.out.println("First click: " + firstclick);
-            // System.out.println("Second click: " + secondclick);
+            // Zoom map
 
             if (System.currentTimeMillis() - cooldown.get("resetZoom") > 100) {
                 if (keysDown.contains(KeyEvent.VK_CONTROL) && keysDown.contains(KeyEvent.VK_F)) {
@@ -326,6 +408,8 @@ public class Jeu extends JFrame {
                     posCameraY = ytemp * Ts;
                 }
             }
+
+            // Move map
 
             if (keysDown.contains(KeyEvent.VK_D)) {
                 playervelocityX += (acc) * delta;
@@ -399,12 +483,13 @@ public class Jeu extends JFrame {
 
             // System.out.print("x: " + posCameraX + " y: " + posCameraY);
             // System.out.println();
-            //if (mouseClicked) {
-                //System.out.println("X: " + mouseX + " Y: " + mouseY);
-                //System.out.println("a: " + mouseX / Ts + " b: " + mouseY / Ts);
-                //System.out.println("id texture: " + carte.getFloor()[mouseY / Ts][mouseX / Ts].id);
-            //    mouseClicked = false;
-           ///}
+            // if (mouseClicked) {
+            // System.out.println("X: " + mouseX + " Y: " + mouseY);
+            // System.out.println("a: " + mouseX / Ts + " b: " + mouseY / Ts);
+            // System.out.println("id texture: " + carte.getFloor()[mouseY / Ts][mouseX /
+            // Ts].id);
+            // mouseClicked = false;
+            /// }
             render(carte);
             frame++;
 
@@ -414,8 +499,8 @@ public class Jeu extends JFrame {
                 fps = frame;
                 frame = 0;
                 // clear();
-                //System.out.println(Ts);
-                //System.out.println(" fps: " + fps);
+                // System.out.println(Ts);
+                // System.out.println(" fps: " + fps);
                 System.out.println("first click: " + firstclick);
             }
             // System.out.println(playervelocity);

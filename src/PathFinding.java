@@ -9,17 +9,16 @@ public class PathFinding {
         int t[][] = generationTerrain(10, 10);
         t[1][4] = 7;
         t[8][6] = 4;
-        while (t != null) {
-            t = move(generateDistanceGrid(t, 1, 4), t);
-            show(t);
-            try {
-                Thread.sleep(750);
-            } catch (InterruptedException e) {
-                System.out.println(e);
-            }
-            System.out.print("\033[H\033[2J");
-            System.out.flush();
-        }
+        int co[];
+        int tt[][] = generateDistanceGrid(t, 1, 4);
+        show(tt);
+        t = move(generateDistanceGrid(t, 1, 4), t);
+        co = wheretomove(tt, t, 6, 8);
+        show(t);
+        System.out.println("x: " + co[0] + " y: " + co[1]);
+        // System.out.print("\033[H\033[2J");
+        // System.out.flush();
+
     }
 
     static class Cell {
@@ -41,7 +40,7 @@ public class PathFinding {
         int cols = grid[0].length;
         int[][] distances = new int[rows][cols];
         for (int[] row : distances) {
-            Arrays.fill(row, Integer.MAX_VALUE);
+            Arrays.fill(row, 99);
         }
         distances[startX][startY] = 0;
 
@@ -70,6 +69,27 @@ public class PathFinding {
 
     private static boolean isValid(int x, int y, int rows, int cols) {
         return x >= 0 && x < rows && y >= 0 && y < cols;
+    }
+
+    private static int[] wheretomove(int t[][], int map[][], int x, int y) {
+        int deplace_x = 0;
+        int deplace_y = 0;
+        int min = Integer.MAX_VALUE;
+        for (int i = y - 1; i < y + 2; i++) {
+            for (int j = x - 1; j < x + 2; j++) {
+                if (!(i < 0 || j < 0 || i > map.length - 1 || j > map[i].length - 1)) {
+                    if (map[i][j] == 0) {
+                        if (min > t[i][j]) {
+                            min = t[i][j];
+                            deplace_x = j;
+                            deplace_y = i;
+                        }
+                    }
+                }
+            }
+        }
+        System.out.println("x: " + deplace_x + " y: " + deplace_y);
+        return new int[] { deplace_x-x, deplace_y-y };
     }
 
     private static int[][] move(int t[][], int map[][]) {
@@ -105,7 +125,11 @@ public class PathFinding {
         for (int[] is : t) {
             for (int i : is) {
                 if (i < 10) {
-                    System.out.print(i + "  ");
+                    if (i == Integer.MAX_VALUE) {
+                        System.out.print(99 + "  ");
+                    } else {
+                        System.out.print(i + "  ");
+                    }
                 } else {
                     System.out.print(i + " ");
                 }
